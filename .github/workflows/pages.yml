@@ -1,0 +1,57 @@
+name: Deploy to GitHub Pages
+
+# Serves the static site on GitHub Pages. The source uses root-absolute paths
+# (href="/css/...") which work when served at a domain root (e.g. the event's
+# nginx). GitHub project Pages serves under /<repo>/, so this workflow rewrites
+# those paths to the sub-path at build time and leaves the committed source clean.
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Stage site and rewrite root-absolute paths for the project sub-path
+        run: |
+          REPO="${GITHUB_REPOSITORY#*/}"
+          rm -rf _site && mkdir _site
+          rsync -a --exclude '.git' --exclude '.github' --exclude '_site' ./ _site/
+          # href="/..." and src="/..."  ->  "/<repo>/..."
+          find _site -name '*.html' -print0 | xargs -0 sed -i -E "s#(href|src)=\"/#\1=\"/${REPO}/#g"
+          # meta-refresh redirects: content="0; url=/..." -> "/<repo>/..."
+          find _site -name '*.html' -print0 | xargs -0 sed -i -E "s#(content=\"[0-9]+; ?url=)/#\1/${REPO}/#g"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

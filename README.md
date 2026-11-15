@@ -2,6 +2,8 @@
 
 Static website content for the **Kali Linux Dojo** village at **Queen City Con** (Cincinnati, Nov 13–15, 2026) — an Egyptian/desert‑themed, hands‑on space where attendees learn to customize and use the Kali Linux distribution across three stations.
 
+**Live site (GitHub Pages):** https://cmillstopher.github.io/QCC-Kali-Dojo-2026/
+
 ## The stations
 
 | # | Station | Theme |
