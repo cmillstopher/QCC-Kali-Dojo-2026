@@ -27,8 +27,6 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Stage site and rewrite root-absolute paths for the project sub-path
         run: |
