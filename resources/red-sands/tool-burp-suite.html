@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="A field reference for Burp Suite: the intercepting-proxy model, scope, Repeater and Intruder, and a working loop for the Hackazon track, the companion to the Hidden Chamber web missions.">
+<title>Burp Suite Reference · Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<style>
+  .reftable code{color:var(--rs-gold);font-weight:700;white-space:nowrap}
+  .phase{border-left:3px solid var(--rs-teal);padding:2px 0 2px 16px;margin:18px 0}
+  .phase h3{margin:0 0 6px}
+  .phase .ph-tag{color:var(--rs-teal);font-weight:800;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/stations/scribes-arsenal.html"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html"><span class="rs-num">03</span>The Chamber</a>
+      <a href="/resources/red-sands/hackazon-guide.html">Hackazon</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">Supplemental reference · Stations 02–03</p>
+  <h1>Burp Suite</h1>
+  <p class="rs-lead">The web missions tell you to “send it to Repeater and tamper.” This is the deeper companion: how Burp sits between you and the app, how to keep it in scope, and the loop that turns a hunch into a confirmed finding.</p>
+  <ol class="rs-path">
+    <li><a href="/resources/red-sands/hackazon-guide.html">Hackazon</a></li>
+    <li aria-current="step">Burp Suite reference</li>
+  </ol>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>The one idea: an intercepting proxy</h2>
+    <p>Burp sits <strong>between your browser and the web app</strong>. Every request stops at Burp first, where you can read it, change it, replay it, or let it through. That’s the whole superpower. You’re no longer limited to what the page’s buttons and forms let you send. <strong>Community Edition ships with Kali</strong> and covers everything in the Hackazon track; you do not need Pro.</p>
+    <figure class="fig">
+      <svg viewBox="0 0 900 230" role="img" aria-labelledby="burp-t burp-d">
+        <title id="burp-t">Burp as an intercepting proxy</title>
+        <desc id="burp-d">Your browser sends every request to Burp's proxy on 127.0.0.1 port 8080 before it reaches the Hackazon web app. At Burp you can read, modify, or replay each request. The app's response travels back the same way, through Burp, to your browser.</desc>
+        <defs>
+          <marker id="burp-teal" markerWidth="10" markerHeight="10" refX="6.5" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#6fc8bd"/></marker>
+          <marker id="burp-gold" markerWidth="10" markerHeight="10" refX="6.5" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#c8a24c"/></marker>
+        </defs>
+
+        <!-- browser -->
+        <rect x="26" y="72" width="188" height="96" rx="10" class="d-box d-box--teal"/>
+        <text x="120" y="114" text-anchor="middle" class="d-title">Your browser</text>
+        <text x="120" y="140" text-anchor="middle" class="d-cap">where you click</text>
+
+        <!-- burp (center, emphasised) -->
+        <rect x="356" y="56" width="188" height="128" rx="10" class="d-box d-box--gold"/>
+        <text x="450" y="92" text-anchor="middle" class="d-title">Burp proxy</text>
+        <text x="450" y="116" text-anchor="middle" class="d-cap d-mono" fill="#e2b75c">127.0.0.1:8080</text>
+        <text x="450" y="142" text-anchor="middle" class="d-sub">read · modify · replay</text>
+        <text x="450" y="166" text-anchor="middle" class="d-cap">every request stops here</text>
+
+        <!-- app -->
+        <rect x="686" y="72" width="188" height="96" rx="10" class="d-box d-box--teal"/>
+        <text x="780" y="114" text-anchor="middle" class="d-title">Hackazon</text>
+        <text x="780" y="140" text-anchor="middle" class="d-cap">the web app</text>
+
+        <!-- request (top, teal, left to right) -->
+        <path d="M214 104 L354 104" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#burp-teal)"/>
+        <path d="M544 104 L684 104" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#burp-teal)"/>
+        <text x="284" y="94" text-anchor="middle" class="d-cap" fill="#6fc8bd">request →</text>
+
+        <!-- response (bottom, gold dashed, right to left) -->
+        <path d="M684 150 L546 150" stroke="#c8a24c" stroke-width="2" fill="none" stroke-dasharray="5 5" marker-end="url(#burp-gold)"/>
+        <path d="M354 150 L216 150" stroke="#c8a24c" stroke-width="2" fill="none" stroke-dasharray="5 5" marker-end="url(#burp-gold)"/>
+        <text x="616" y="170" text-anchor="middle" class="d-cap" fill="#e2b75c">← response</text>
+      </svg>
+      <figcaption>Intercept on, and a request waits at Burp for you to read or tamper; intercept off, and it flows straight through while HTTP history records it all.</figcaption>
+    </figure>
+  </div>
+
+  <div class="rs-card">
+    <h2>Get traffic flowing</h2>
+    <ol class="rs-steps">
+      <li>Launch Burp (Applications → Web Analysis), accept the temporary project.</li>
+      <li>Burp’s proxy listens on <code>127.0.0.1:8080</code>. Point your browser at it, the simplest path is Burp’s built-in browser: <strong>Proxy → Intercept → Open Browser</strong>, which is pre-configured.</li>
+      <li>Using your own browser instead? Set its proxy to <code>127.0.0.1:8080</code> and install Burp’s CA certificate (browse to <code>http://burp</code> → “CA Certificate”) so HTTPS doesn’t throw errors.</li>
+      <li>Toggle <strong>Intercept off</strong> to browse normally while Burp records everything in <strong>HTTP history</strong>.</li>
+    </ol>
+  </div>
+
+  <div class="rs-card">
+    <h2>Set your scope first: every time</h2>
+    <p>Before you poke anything, tell Burp what you’re allowed to touch. This keeps your testing, and any noisy tools, on the lab app and nothing else.</p>
+    <pre><code>Target → Site map → right-click the Hackazon host → "Add to scope"
+Then: Target → Scope → tick "Use advanced scope control" if you need to be precise
+And:  Proxy/HTTP history → filter → "Show only in-scope items"</code></pre>
+    <div class="rs-callout rs-callout-warning">Scope is a safety control, not a convenience. With it set, you won’t accidentally fuzz another attendee’s target or an out-of-scope host.</div>
+  </div>
+
+  <div class="rs-card">
+    <h2>The tabs you’ll actually use</h2>
+    <div class="rs-table-wrap">
+      <table class="rs-table reftable">
+        <thead><tr><th>Tab</th><th>What it’s for</th></tr></thead>
+        <tbody>
+          <tr><td><code>Proxy</code></td><td>Intercept and read live requests; <strong>HTTP history</strong> is your log of everything the app did.</td></tr>
+          <tr><td><code>Target</code></td><td>The <strong>site map</strong> of every URL seen, and where you set <strong>scope</strong>.</td></tr>
+          <tr><td><code>Repeater</code></td><td>Your workbench, edit one request and resend it endlessly to test a single input. Where most findings are confirmed.</td></tr>
+          <tr><td><code>Intruder</code></td><td>Automates sending a request many times with varying values (wordlists, IDs). <em>CE is rate-limited</em>, so it’s slow but fine for small lab fuzzing.</td></tr>
+          <tr><td><code>Decoder</code> / <code>Comparer</code></td><td>Encode/decode (URL, Base64, hex) and diff two responses side by side.</td></tr>
+          <tr><td><code>Extensions</code></td><td>The <strong>BApp Store</strong>, add community tools. (Kali’s Burp is CE; some extensions need Pro.)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rs-card">
+    <h2>The working loop for Hackazon</h2>
+
+    <div class="phase">
+      <span class="ph-tag">Map</span>
+      <h3>Browse the whole app</h3>
+      <p>With intercept off, click through Hackazon, log in, search, add to cart, view an order. Every page fills the <strong>site map</strong> and <strong>HTTP history</strong>. You’re building the list of inputs to test.</p>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Pick a request</span>
+      <h3>Send it to Repeater</h3>
+      <p>Find a request with an interesting parameter (a search term, a product <code>id</code>, a profile field) in HTTP history → <strong>right-click → Send to Repeater</strong> (<kbd>Ctrl+R</kbd>).</p>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Confirm</span>
+      <h3>Tamper and read the response</h3>
+      <p>In Repeater, change one thing and hit <strong>Send</strong> (<kbd>Ctrl+Space</kbd>). A single quote that breaks a query, an <code>id</code> that returns someone else’s record, a payload that reflects unencoded, that difference in the response <em>is</em> your evidence. Keep the request/response pair.</p>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Widen (optional)</span>
+      <h3>Intruder for the repetitive part</h3>
+      <p>Need to try many IDs or a small wordlist? <strong>Send to Intruder</strong>, mark the payload position, load a short list, start the attack. Sort results by status code or response length to spot the outlier. Keep it small, CE throttles, and the box is shared.</p>
+    </div>
+  </div>
+
+  <div class="rs-card">
+    <h2>Shortcuts worth memorising</h2>
+    <div class="rs-table-wrap">
+      <table class="rs-table reftable">
+        <tbody>
+          <tr><td><kbd>Ctrl+R</kbd></td><td>Send the selected request to Repeater.</td></tr>
+          <tr><td><kbd>Ctrl+Space</kbd></td><td>Send the current Repeater request.</td></tr>
+          <tr><td><kbd>Ctrl+Shift+B</kbd></td><td>Toggle Base64 on the selection (in editors).</td></tr>
+          <tr><td>right-click → Engagement tools</td><td>Discover content, find references, generate CSRF PoC.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rs-callout rs-callout-gold">
+    <strong>The AI angle.</strong> Burp Suite Pro now has <em>Burp AI</em>. It can explain a highlighted header, follow up on a scanner finding, and cut false positives. The manual Repeater loop above is still the skill it’s built on. See <a href="/resources/red-sands/ai-and-kali.html">AI + Kali: what’s possible</a>.
+  </div>
+
+  <div class="rs-actions">
+    <a class="rs-button rs-button-primary" href="/resources/red-sands/chamber-missions.html#hackazon">The Hackazon track →</a>
+    <a class="rs-button" href="/resources/red-sands/hackazon-guide.html">Hackazon vuln guide</a>
+    <a class="rs-button" href="/resources/red-sands/documenting-and-reporting.html">Document &amp; Report</a>
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · Burp Suite reference</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="A worked sample penetration-test finding report on a fictional target, showing attendees what a good Hidden Chamber write-up looks like.">
+<title>Sample Finding Report · Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<style>
+  .meta-grid{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:6px 0}
+  .meta-grid dt{color:var(--rs-teal);font-weight:800;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+  .meta-grid dd{margin:0}
+  .sev{font-weight:800;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+    border-radius:999px;padding:3px 11px;border:1px solid}
+  .sev-high{color:#f0a080;border-color:rgba(240,160,128,.55)}
+  .sev-low{color:#9ed9a5;border-color:rgba(158,217,165,.5)}
+  .finding{border-left:4px solid var(--rs-line);padding-left:18px;margin:18px 0}
+  .finding.high{border-left-color:var(--rs-red)}
+  .finding.low{border-left-color:#6f9e76}
+  .finding dl dt{color:var(--rs-gold);font-weight:800;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;margin-top:12px}
+  .finding dl dd{margin:3px 0 0}
+</style>
+</head>
+<body>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/connect.html">Connect</a>
+      <a href="/stations/pharaohs-forge.html"><span class="rs-num">01</span>The Forge</a>
+      <a href="/stations/scribes-arsenal.html"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html" aria-current="page"><span class="rs-num">03</span>The Chamber</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">The Hidden Chamber · Reference</p>
+  <h1>Sample Finding Report</h1>
+  <p class="rs-lead">This is what a good write-up looks like. It’s a worked example on a <strong>made-up target</strong>, read it for the shape and the level of detail, not for answers.</p>
+  <ol class="rs-path">
+    <li><a href="/stations/hidden-chamber.html">The Chamber</a></li>
+    <li><a href="/resources/red-sands/chamber-missions.html">Guided missions</a></li>
+    <li aria-current="step">Sample report</li>
+  </ol>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-callout rs-callout-warning">
+    <strong>Fictional example, not a lab machine.</strong> “Northwind Logistics” and host <code>10.10.10.25</code> are invented, and the Redis issue below is <em>not</em> present on the Chamber targets (<code>10.50.70.52</code> / <code>.53</code>). Don’t go looking for this in the lab, use it only to model your own report.
+  </div>
+</section>
+
+<!-- REPORT BODY -->
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <p class="rs-label">Assessment report</p>
+    <h2>Internal Host Review: app01</h2>
+    <dl class="meta-grid">
+      <dt>Target</dt><dd><code>app01.northwind.internal</code> (10.10.10.25)</dd>
+      <dt>Assessor</dt><dd>A. Scribe</dd>
+      <dt>Date</dt><dd>14 November 2026</dd>
+      <dt>Scope</dt><dd>Single authorized host; internal network only. No denial-of-service, no destructive actions.</dd>
+    </dl>
+
+    <h3>Executive summary</h3>
+    <p>An authorized review of <code>app01</code> found <strong>one high-severity issue</strong>, an unauthenticated Redis service exposing all cached application data and allowing write access, and <strong>one low-severity</strong> information-disclosure issue. The high finding should be fixed before this host handles production data; the low finding is housekeeping. No data was altered or removed during testing.</p>
+
+    <h3>Approach</h3>
+    <p class="rs-muted">Discover (port/service scan) → enumerate the exposed services → validate each issue with the least intrusive check that proves it → document. All activity stayed within the single authorized host.</p>
+
+    <h3>Findings at a glance</h3>
+    <div class="rs-table-wrap">
+      <table class="rs-table">
+        <thead><tr><th>ID</th><th>Finding</th><th>Severity</th></tr></thead>
+        <tbody>
+          <tr><td>F-1</td><td>Unauthenticated Redis service</td><td><span class="sev sev-high">High</span></td></tr>
+          <tr><td>F-2</td><td>Verbose server version disclosure</td><td><span class="sev sev-low">Low</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FINDING 1 -->
+  <div class="rs-card">
+    <div class="finding high">
+      <p class="rs-label">F-1 · <span class="sev sev-high">High</span></p>
+      <h2>Unauthenticated Redis service</h2>
+      <p class="rs-muted">CWE-306: Missing Authentication for Critical Function · CVSS 3.1: 8.6 (High), <code>AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:L</code></p>
+      <dl>
+        <dt>Observation</dt>
+        <dd>A Redis key-value service is listening on <code>10.10.10.25:6379</code> and accepts commands with no authentication, from any host that can reach it on the network.</dd>
+
+        <dt>Evidence</dt>
+        <dd>
+          <pre><code># 1 - discovered during the service scan
+nmap -p6379 -sV 10.10.10.25
+#   6379/tcp open  redis  Redis key-value store 5.0.x
+
+# 2 - validated: the server answers with no credentials
+redis-cli -h 10.10.10.25 ping
+#   PONG
+
+redis-cli -h 10.10.10.25 INFO server | head -3
+#   redis_version:5.0.x
+#   ...
+
+# 3 - confirmed write access, then removed the test key (no data changed)
+redis-cli -h 10.10.10.25 set redsands_test 1
+#   OK
+redis-cli -h 10.10.10.25 del redsands_test
+#   (integer) 1</code></pre>
+          <p class="rs-muted">Full output saved to <code>~/evidence/redis_10.10.10.25.log</code> (via <code>script</code>).</p>
+        </dd>
+
+        <dt>Impact</dt>
+        <dd>Anyone on the internal network can read every key the service holds, here, cached session and application data, and write or delete keys at will. Beyond data exposure and tampering, an unauthenticated Redis instance is a common stepping-stone to fuller compromise of the host.</dd>
+
+        <dt>Remediation</dt>
+        <dd>
+          <ul>
+            <li>Require authentication (<code>requirepass</code> or, better, Redis ACLs) and rotate any data that may have been exposed.</li>
+            <li>Bind the service to <code>127.0.0.1</code> if only local apps use it; otherwise restrict TCP 6379 at the firewall to the specific app hosts.</li>
+            <li>Ensure <code>protected-mode</code> is on and upgrade to a current, supported release.</li>
+          </ul>
+        </dd>
+      </dl>
+    </div>
+  </div>
+
+  <!-- FINDING 2 -->
+  <div class="rs-card">
+    <div class="finding low">
+      <p class="rs-label">F-2 · <span class="sev sev-low">Low</span></p>
+      <h2>Verbose server version disclosure</h2>
+      <p class="rs-muted">CWE-200: Exposure of Sensitive Information · CVSS 3.1: 3.1 (Low)</p>
+      <dl>
+        <dt>Observation</dt>
+        <dd>The web service on <code>app01</code> returns a <code>Server</code> header that names the exact software and version.</dd>
+
+        <dt>Evidence</dt>
+        <dd><pre><code>curl -sI http://10.10.10.25/
+#   HTTP/1.1 200 OK
+#   Server: Acme-HTTPd/4.2.1
+#   ...</code></pre></dd>
+
+        <dt>Impact</dt>
+        <dd>On its own this is minor, but it lets an attacker match the exact version to known exploits without any further probing, useful reconnaissance that costs the defender nothing to remove.</dd>
+
+        <dt>Remediation</dt>
+        <dd>Suppress or shorten the <code>Server</code> header (e.g., server tokens off / a reverse-proxy rewrite), and keep the software patched so a disclosed version isn’t a vulnerable one.</dd>
+      </dl>
+    </div>
+  </div>
+
+  <!-- MAPPING + CLOSE -->
+  <div class="rs-card">
+    <h2>Why this works as a report</h2>
+    <p>Notice the shape. It’s exactly the four-part structure from your worksheet, just polished:</p>
+    <div class="rs-grid">
+      <article class="rs-card rs-card-plain"><h3>Observation</h3><p>What’s there, stated plainly, target, service, port.</p></article>
+      <article class="rs-card rs-card-plain"><h3>Evidence</h3><p>The exact commands and their output, saved, anyone could reproduce it.</p></article>
+      <article class="rs-card rs-card-plain"><h3>Impact</h3><p>What it means in the real world, honestly rated, not “critical everything.”</p></article>
+      <article class="rs-card rs-card-plain"><h3>Remediation</h3><p>A concrete fix the owner can actually act on.</p></article>
+    </div>
+    <p class="rs-muted" style="margin-top:12px">Two more habits worth copying: a <strong>severity</strong> that matches reality (the Low really is low), and evidence that is <strong>non-destructive and reversible</strong>, the write test above was removed immediately and noted.</p>
+    <div class="rs-actions">
+      <a class="rs-button rs-button-primary" href="/resources/red-sands/chamber-missions.html">Back to the guided missions →</a>
+      <a class="rs-button" href="/resources/red-sands/documenting-and-reporting.html">How to produce this report</a>
+      <a class="rs-button" href="/stations/hidden-chamber.html">The Hidden Chamber</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · The Hidden Chamber · Sample Report</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+</body>
+</html>

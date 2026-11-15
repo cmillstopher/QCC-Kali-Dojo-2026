@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="Pre-flight preparation and safety for the Hidden Chamber lab: confirm scope, snapshot, keep evidence, and reset at the end.">
+<title>Hidden Chamber · Lab Preparation | Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+</head>
+<body>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/connect.html">Connect</a>
+      <a href="/stations/pharaohs-forge.html"><span class="rs-num">01</span>The Forge</a>
+      <a href="/stations/scribes-arsenal.html"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html" aria-current="page"><span class="rs-num">03</span>The Chamber</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">The Hidden Chamber · Pre-flight</p>
+  <h1>Prepare for the Lab</h1>
+  <p class="rs-lead">A two-minute checklist before you touch a target. The Hidden Chamber is where you apply your Kali skills against deliberately vulnerable, isolated training systems, so a little care up front keeps the lab safe and fair for everyone.</p>
+  <ol class="rs-path">
+    <li><a href="/stations/hidden-chamber.html">The Chamber</a></li>
+    <li aria-current="step">Lab preparation</li>
+  </ol>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>Before you start</h2>
+    <ol class="rs-steps">
+      <li>Get your <strong>target address and scope</strong> from a volunteer. Work only against that address: <code>TARGET=10.50.70.____</code></li>
+      <li>Confirm the target VM is up and your Kali is on the <strong>lab network</strong>, and that you can reach the target and nothing else: <code>ping -c2 "$TARGET"</code></li>
+      <li>Take or confirm a <strong>clean VM snapshot</strong> of your own machine, so you can roll back.</li>
+      <li>Make a place for evidence: <code>mkdir -p ~/red-sands/evidence</code>, record observation, command, result, and timestamp as you go.</li>
+    </ol>
+    <div class="rs-callout rs-callout-warning">
+      <strong>Synthetic data only.</strong> Never bridge a vulnerable target to hotel Wi-Fi, the conference network, or the internet, and never store real passwords, tokens, or personal data in your practice files.
+    </div>
+  </div>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-section-head">
+    <p class="rs-eyebrow">Work the cycle</p>
+    <h2>Discover → Validate → Report → Reset</h2>
+    <p>The station page has the full tiered challenges. This is the shape every one of them follows.</p>
+  </div>
+  <div class="rs-grid">
+    <article class="rs-card rs-card-plain"><h3>1 · Identify</h3><p>Confirm the target and the scope a volunteer set. Nothing outside it.</p></article>
+    <article class="rs-card rs-card-plain"><h3>2 · Discover</h3><p>Do service discovery only as directed. Record what you see; don’t guess.</p></article>
+    <article class="rs-card rs-card-plain"><h3>3 · Validate</h3><p>Confirm a finding using the exercise instructions. No destructive actions, persistence, or credential theft.</p></article>
+    <article class="rs-card rs-card-plain"><h3>4 · Reset</h3><p>Ask a volunteer to reset the target at the end so the next person starts clean.</p></article>
+  </div>
+  <div class="rs-callout rs-callout-gold">
+    <strong>The volunteer sets what’s in scope</strong> for each exercise. If you’re unsure whether a technique is allowed, stop and ask before running it.
+  </div>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-actions">
+    <a class="rs-button rs-button-primary" href="/stations/hidden-chamber.html">Go to the Hidden Chamber →</a>
+    <a class="rs-button" href="/stations/scribes-arsenal.html">← Back to the Arsenal</a>
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · The Hidden Chamber · Lab Preparation</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="The attendee's documentation toolkit: capture evidence as you work, organise your findings, and turn them into a clean report, the real deliverable of every Red Sands mission.">
+<title>Document &amp; Report · Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<style>
+  .phase{border-left:3px solid var(--rs-teal);padding:2px 0 2px 16px;margin:18px 0}
+  .phase h3{margin:0 0 6px}
+  .phase .ph-tag{color:var(--rs-teal);font-weight:800;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase}
+  .toolrow{display:grid;grid-template-columns:170px 1fr;gap:4px 16px;align-items:baseline;
+    padding:9px 0;border-top:1px solid var(--rs-line)}
+  .toolrow:first-of-type{border-top:0}
+  .toolrow code{color:var(--rs-gold);font-weight:700}
+  .toolrow .tr-note{color:var(--rs-sand)}
+  .tag-def,.tag-add{font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    border-radius:999px;padding:2px 8px;border:1px solid;white-space:nowrap;margin-left:6px;vertical-align:middle}
+  .tag-def{color:#9ed9a5;border-color:rgba(158,217,165,.5)}
+  .tag-add{color:var(--rs-gold);border-color:rgba(226,183,92,.5)}
+  @media (max-width:560px){.toolrow{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/connect.html">Connect</a>
+      <a href="/stations/pharaohs-forge.html"><span class="rs-num">01</span>The Forge</a>
+      <a href="/stations/scribes-arsenal.html"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html"><span class="rs-num">03</span>The Chamber</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">Across every station · The Scribe’s craft</p>
+  <h1>Document It, Then Report It</h1>
+  <p class="rs-lead">Finding the vulnerability is half the job. The write-up is what a real assessment is paid for, and it’s the deliverable here too. This is your toolkit for <strong>capturing evidence as you work</strong>, <strong>organising what you find</strong>, and <strong>turning it into a report</strong>.</p>
+  <ol class="rs-path">
+    <li><a href="/stations/hidden-chamber.html">The Chamber</a></li>
+    <li aria-current="step">Document &amp; Report</li>
+  </ol>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-callout rs-callout-gold">
+    <strong>The golden rule:</strong> if it isn’t captured, it didn’t happen. Capture the command <em>and</em> its output the moment you run it. You can’t re-screenshot a shell you’ve already closed or a target that’s been reset. Every tool on this page is marked <span class="tag-def">on Kali</span>: it ships with a default Kali install, so there’s nothing to download, which matters on the offline Dojo network.
+  </div>
+
+  <!-- CAPTURE -->
+  <div class="phase">
+    <span class="ph-tag">Step 1 · Capture as you go</span>
+    <h3>Record everything the first time</h3>
+    <p>Start a capture before you touch the target, and keep one evidence folder per engagement.</p>
+    <pre><code>mkdir -p ~/red-sands/evidence &amp;&amp; cd ~/red-sands/evidence
+script -a session-$(date +%H%M).log      # records your whole terminal; 'exit' stops it</code></pre>
+    <div class="toolrow"><span><code>script</code><span class="tag-def">on Kali</span></span><span class="tr-note">Logs every command and its output to a file. Your always-on safety net.</span></div>
+    <div class="toolrow"><span><code>tee</code><span class="tag-def">on Kali</span></span><span class="tr-note">Save one command’s output <em>and</em> see it: <code>nmap … | tee nmap_$TARGET.txt</code>.</span></div>
+    <div class="toolrow"><span><code>xfce4-screenshooter</code><span class="tag-def">on Kali</span></span><span class="tr-note">Kali’s default Xfce screenshot tool (also on the <kbd>PrtSc</kbd> key), the cleanest way to capture a GUI tool or a browser finding. Save the PNG straight into your evidence folder.</span></div>
+    <div class="toolrow"><span><code>sha256sum</code><span class="tag-def">on Kali</span></span><span class="tr-note">Hash a captured file so you can prove it wasn’t changed later: <code>sha256sum evidence/* &gt; hashes.txt</code>.</span></div>
+    <p class="rs-hint">Before a screenshot or file leaves your hands, strip its metadata so it doesn’t leak your username or device. See <a href="/resources/red-sands/anonymizing-kali.html">Anonymizing Kali</a>.</p>
+  </div>
+
+  <!-- ORGANISE -->
+  <div class="phase">
+    <span class="ph-tag">Step 2 · Organise your findings</span>
+    <h3>Turn raw output into findings</h3>
+    <p>A pile of log files isn’t a finding. As you confirm each issue, write it up in the same four parts, the same shape the <a href="/resources/red-sands/sample-report.html">sample report</a> uses.</p>
+    <div class="doc-four">
+      <div class="rs-grid">
+        <article class="rs-card rs-card-plain"><h4>Observation</h4><p>Target, service, port, timestamp, the command, and the relevant output.</p></article>
+        <article class="rs-card rs-card-plain"><h4>Evidence</h4><p>The one screenshot or log excerpt that proves it. Reproducible from your notes?</p></article>
+        <article class="rs-card rs-card-plain"><h4>Impact</h4><p>What an attacker could realistically do with it in a real environment.</p></article>
+        <article class="rs-card rs-card-plain"><h4>Remediation</h4><p>The patch, upgrade, config change, or control that closes it.</p></article>
+      </div>
+    </div>
+    <div class="toolrow"><span>a text editor<span class="tag-def">on Kali</span></span><span class="tr-note"><code>nano</code> or <code>vim</code> in the terminal, or <strong>Mousepad</strong> on the Xfce desktop. Keep one Markdown file per engagement, a heading per finding.</span></div>
+    <div class="toolrow"><span>a folder per host<span class="tag-def">on Kali</span></span><span class="tr-note">No database needed: a directory per target holding its logs, screenshots, and a <code>findings.md</code> keeps everything together and reproducible.</span></div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="phase">
+    <span class="ph-tag">Step 3 · Build the report</span>
+    <h3>Assemble the deliverable</h3>
+    <p>Open the <a href="/resources/red-sands/sample-report.html">sample report</a> first and match its structure: title, scope, a findings table with severity, then one section per finding.</p>
+    <p>Write the whole thing as a single <strong>Markdown file</strong> in your text editor, folding in the observations and evidence you organised in Step 2. The Markdown file <em>is</em> the deliverable: it reads cleanly as plain text, and anyone can open it.</p>
+    <pre><code>~/red-sands/evidence/report.md     # one file: scope, a findings table, a section per finding</code></pre>
+    <p class="rs-muted">Need a PDF to hand in? Open the file in Kali’s default <strong>Firefox</strong> and use <em>Print → Save to PDF</em>, or hand your Markdown to a volunteer at the reporting station. Nothing to install either way.</p>
+    <div class="rs-callout">A good report lets someone who wasn’t there reproduce each finding from your words and evidence alone. Severity, impact, and a clear fix matter as much as the exploit.</div>
+  </div>
+
+  <!-- EVERYTHING SHIPS WITH KALI -->
+  <div class="rs-card">
+    <h2>Everything here ships with Kali</h2>
+    <p>Every tool on this page, <code>script</code>, <code>tee</code>, <code>sha256sum</code>, the Xfce screenshot tool, a text editor, and Firefox, is already on a default Kali install. On the offline Dojo network that’s the whole point: you can document from the very first command without downloading anything.</p>
+    <div class="rs-callout rs-callout-gold">Capture as you go, organise into findings, and write the report as one Markdown file. Simple, reproducible, and nothing to install.</div>
+    <div class="rs-actions">
+      <a class="rs-button rs-button-primary" href="/resources/red-sands/sample-report.html">See a full sample report →</a>
+      <a class="rs-button" href="/resources/red-sands/chamber-missions.html">← Back to the missions</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · Document &amp; Report</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="A look at how AI is being used alongside Kali Linux in real tools today, natural-language scanning, AI-assisted web testing, LLM packet analysis, and automated reporting. Idea-only: none of this runs in the Village.">
+<title>AI + Kali: What's Possible · Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<style>
+  .uc{border-left:3px solid var(--rs-teal);padding:2px 0 2px 16px;margin:20px 0}
+  .uc h3{margin:0 0 4px}
+  .uc .uc-station{color:var(--rs-teal);font-weight:800;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase}
+  .uc .uc-real{color:var(--rs-sand);font-size:.92rem;margin-top:6px}
+  .uc .uc-real b{color:var(--rs-gold);font-weight:700}
+  .idea-banner{border:1px solid rgba(226,183,92,.55);background:var(--rs-teal-wash);
+    border-radius:var(--rs-radius);padding:16px 18px;margin:0 0 6px}
+  .idea-banner strong{color:var(--rs-gold)}
+</style>
+</head>
+<body>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/stations/pharaohs-forge.html"><span class="rs-num">01</span>The Forge</a>
+      <a href="/stations/scribes-arsenal.html"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html"><span class="rs-num">03</span>The Chamber</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">A glimpse beyond the Arena</p>
+  <h1>AI + Kali: What’s Possible</h1>
+  <p class="rs-lead">The tools you’re learning here, Nmap, Burp, Wireshark, Metasploit, are starting to grow an AI layer. This page is a tour of how that’s being used in <strong>real tools, today</strong>, mapped to the stations you’ve worked.</p>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="idea-banner">
+    <strong>Idea only, none of this runs in the Village.</strong> We’re not wiring AI into any station; every mission here is yours to drive by hand, because the skills underneath are the point. Think of this as a map of where the field is heading, so the tools you just learned click into a bigger picture.
+  </div>
+
+  <div class="rs-card">
+    <h2>The pattern behind all of it</h2>
+    <p>Almost every example below is the same shape: a <strong>large language model</strong> that can read a request in plain English, decide which tool to run, and read the tool’s output back, with a human reviewing each step. The connective tissue is increasingly the <strong>Model Context Protocol (MCP)</strong>, an open standard that lets an AI assistant call external tools through a small local server.</p>
+    <p>Kali now ships pieces of exactly this stack. As of 2026, Kali’s repositories include an <strong>MCP “Kali Server”</strong> that exposes tools like <code>nmap</code>, <code>gobuster</code>, and <code>nikto</code> to an AI client, paired with <strong>Ollama</strong> (runs open-weight models locally) and <strong>5ire</strong> (a desktop AI client that speaks MCP). In a published walkthrough, a local model was asked in plain English to TCP-scan a host on specific ports, and it drove <code>nmap</code> through that chain and returned structured results, entirely offline. <span class="rs-muted">(Cybersecurity News, March 2026)</span></p>
+    <div class="rs-callout rs-callout-gold"><strong>Why “local” matters.</strong> Running the model on your own machine (Ollama) instead of a cloud API keeps client data, scan output, and findings off third-party servers, a real consideration for authorized engagements under NDA.</div>
+  </div>
+
+  <h2 class="rs-label" style="margin-top:34px">Real use cases, by station</h2>
+
+  <!-- NETWORK MAPPER -->
+  <div class="uc">
+    <span class="uc-station">Station 02 · Network Mapper</span>
+    <h3>Natural language → Nmap</h3>
+    <p>Instead of memorising flags, you describe the goal, “a stealthy version scan of these ports”, and the assistant proposes the exact <code>nmap</code> command, which you review before it runs. It can also read a scan back and summarise what’s interesting.</p>
+    <p class="uc-real"><b>In the wild:</b> tutorials wire <code>shell_gpt</code> to generate Nmap commands from English (Hacking Articles); the Kali MCP server drives <code>nmap</code> from a chat client (Cybersecurity News).</p>
+    <p class="rs-hint">Deepen the manual skill first → <a href="/resources/red-sands/tool-nmap-nse.html">Nmap &amp; NSE reference</a>.</p>
+  </div>
+
+  <!-- WEB / HACKAZON -->
+  <div class="uc">
+    <span class="uc-station">Station 03 · Hackazon &amp; the Web</span>
+    <h3>AI-assisted web testing</h3>
+    <p>The web proxy you use already has AI built in. <strong>Burp Suite Professional</strong> added <strong>Burp AI</strong> in 2025 with features like <em>Explore Issue</em> (follow-up analysis and PoCs for scanner findings), an <em>Explainer</em> that describes a highlighted cookie or header from a security angle, one-click recorded login sequences, and AI false-positive reduction for access-control checks.</p>
+    <p class="uc-real"><b>In the wild:</b> Burp AI ships in Burp Suite Pro 2025.2, with community AI extensions (Shadow Repeater, AI HTTP Analyzer) in the BApp Store; it can be switched off under Settings → AI. (PortSwigger)</p>
+    <p class="rs-hint">Deepen the manual skill first → <a href="/resources/red-sands/tool-burp-suite.html">Burp Suite reference</a> · <a href="/resources/red-sands/hackazon-guide.html">Hackazon</a>.</p>
+  </div>
+
+  <!-- PACKET ANALYST -->
+  <div class="uc">
+    <span class="uc-station">Station 02 · Packet Analyst</span>
+    <h3>Ask your packets questions</h3>
+    <p>LLMs are being pointed at capture files so you can ask “what hosts talked to the FTP server, and was anything sent in the clear?” and get an answer with the packets that back it, a fast triage layer on top of, not a replacement for, reading the stream yourself.</p>
+    <p class="uc-real"><b>In the wild:</b> “Local Packet Whisperer” runs pcap Q&amp;A against a local model; the Wireshark community presented natural-language packet interaction at SharkFest ’25 (“Talk with Your Packets”); Wireshark MCP servers expose captures to AI clients.</p>
+    <p class="rs-hint">Deepen the manual skill first → <a href="/resources/red-sands/tool-wireshark.html">Wireshark &amp; tshark reference</a>.</p>
+  </div>
+
+  <!-- CHAMBER / METASPLOIT -->
+  <div class="uc">
+    <span class="uc-station">Station 03 · The Hidden Chamber</span>
+    <h3>AI as a research &amp; triage partner</h3>
+    <p>Where the Chamber has you move Discover → Enumerate → Validate, AI assistants are being used to suggest the next step: reading a service banner and proposing which Metasploit module to <code>check</code>, explaining a CVE, or prioritising which finding matters most. The human still runs, and is accountable for, every action.</p>
+    <p class="uc-real"><b>In the wild:</b> Nebula wraps recon/exploit tools behind an AI assistant; PentestGPT guides an engagement step by step; MCP servers now expose Metasploit itself to an LLM.</p>
+    <p class="rs-hint">Deepen the manual skill first → <a href="/resources/red-sands/tool-metasploit.html">Metasploit reference</a>.</p>
+  </div>
+
+  <!-- REPORTING -->
+  <div class="uc">
+    <span class="uc-station">Across every station · Document &amp; Report</span>
+    <h3>From evidence to first draft</h3>
+    <p>The write-up is where AI is most immediately useful and lowest-risk: hand it your scan logs and notes and it drafts the finding, observation, impact, remediation, in the structure of a real report, which you then correct and own. It turns a blank page into an editable draft.</p>
+    <p class="uc-real"><b>In the wild:</b> reporting assistants like Burp’s <em>Report LM</em> extension and general LLM workflows summarise tool output into finding write-ups; the same local-model stack above keeps that data on your machine.</p>
+    <p class="rs-hint">Pair it with → <a href="/resources/red-sands/documenting-and-reporting.html">Document &amp; Report</a>.</p>
+  </div>
+
+  <div class="rs-card">
+    <h2>The catch: why skills still come first</h2>
+    <p>Every serious write-up on these tools lands in the same place: <strong>AI suggests, you verify.</strong> That’s the exact ethic the Village is built on.</p>
+    <div class="rs-grid">
+      <article class="rs-card rs-card-plain"><h3>It’s confidently wrong</h3><p>Models invent CVEs, flags, and commands. If you can’t tell a real finding from a plausible one, AI will happily hand you the plausible one.</p></article>
+      <article class="rs-card rs-card-plain"><h3>Scope is on you</h3><p>An assistant that can run tools can run them at the wrong target. Authorisation and scope are a human responsibility, not a prompt.</p></article>
+      <article class="rs-card rs-card-plain"><h3>Evidence doesn’t change</h3><p>A finding is still true only if you can reproduce it. AI can draft the report, but you capture the proof.</p></article>
+      <article class="rs-card rs-card-plain"><h3>Data handling matters</h3><p>Cloud models see what you paste. Local models (Ollama) are why the Kali stack above runs offline.</p></article>
+    </div>
+    <p style="margin-top:16px">That’s why you learned to read the <code>nmap</code> output, follow the TCP stream, and <code>check</code> before you <code>run</code>. AI raises the ceiling for people who already have the floor, and the floor is what the Arena is for.</p>
+  </div>
+
+  <div class="rs-card">
+    <h2>Further reading: look these up off-network</h2>
+    <p class="rs-muted">The dojo network is offline, so these are names to search for later, not links:</p>
+    <ul>
+      <li>Kali’s local AI stack (Ollama + 5ire + MCP Kali Server), <em>Cybersecurity News</em> walkthrough, March 2026</li>
+      <li>Burp AI, PortSwigger’s official announcement (“Welcome to the next generation of Burp Suite”)</li>
+      <li>AI-powered Nmap with ShellGPT, <em>Hacking Articles</em></li>
+      <li>LLM packet analysis, SharkFest ’25, “Talk with Your Packets”</li>
+      <li>AI pentest assistants, PentestGPT (GreyDGL) and Nebula (berylliumsec), on GitHub</li>
+    </ul>
+    <div class="rs-actions">
+      <a class="rs-button rs-button-primary" href="/stations/hidden-chamber.html">Back to the Chamber →</a>
+      <a class="rs-button" href="/resources/red-sands/documenting-and-reporting.html">Document &amp; Report</a>
+    </div>
+    <p class="rs-muted" style="font-size:.86rem;margin-top:12px">References were accurate at the time of writing; AI tooling moves fast. Nothing here is endorsed for use at the event.</p>
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · AI + Kali: What’s Possible</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+</body>
+</html>

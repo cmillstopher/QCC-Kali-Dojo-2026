@@ -1,0 +1,17 @@
+# --- Staff-only / sensitive pages: never publish ---
+# Answer keys, volunteer runbooks, coordinator bio, and flag walkthroughs.
+# Listed here so they stay out even if the full site tree is copied over this repo.
+resources/red-sands/chamber-flags-key.html
+resources/red-sands/hidden-chamber-runbook.html
+resources/scribes-arsenal/volunteer-runbook.html
+resources/pharaohs-forge/volunteer-guide.html
+resources/red-sands/about-coordinator.html
+resources/red-sands/flag-king-of-diamonds.html
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/

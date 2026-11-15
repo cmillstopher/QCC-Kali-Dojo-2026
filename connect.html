@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="How to connect to the Red Sands Exploitation Arena local network and open the station guides.">
+<title>Connect to the Arena | Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<style>
+.conn-steps{list-style:none;padding:0;margin:18px 0 0;counter-reset:step}
+.conn-steps li{counter-increment:step;display:grid;grid-template-columns:44px 1fr;gap:14px;margin:16px 0;align-items:start}
+.conn-steps li::before{content:counter(step,decimal-leading-zero);display:grid;place-items:center;width:40px;height:40px;border:1px solid var(--rs-gold);border-radius:50%;color:var(--rs-gold);font-weight:800}
+.network{display:inline-block;border:1px solid rgba(111,200,189,.5);background:var(--rs-teal-wash);color:var(--rs-teal);border-radius:8px;padding:2px 10px;font-weight:800;letter-spacing:.04em}
+.conn-steps h3,.ssid-note h3{color:var(--rs-sand);margin:0 0 4px;font-size:1.02rem}
+</style>
+</head>
+<body>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/connect.html" aria-current="page">Connect</a>
+      <a href="/stations/pharaohs-forge.html"><span class="rs-num">01</span>The Forge</a>
+      <a href="/stations/scribes-arsenal.html"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html"><span class="rs-num">03</span>The Chamber</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">Kali Linux Dojo · Field Guide</p>
+  <h1>Connect to the Arena</h1>
+  <p class="rs-motto">Enter the sands. Forge your tools. Test your skills.</p>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>Enter the Arena</h2>
+    <p>Use these steps to connect your device to the Dojo network and open the station guides. The Arena site is hosted locally, so it may remain available even when the venue’s internet connection is unavailable.</p>
+    <ol class="conn-steps">
+      <li><div><h3>Join the wireless network</h3>On your laptop or mobile device, connect to <span class="network">Kali Dojo</span>.</div></li>
+      <li><div><h3>Wait for network access</h3>Leave IP settings on automatic (DHCP). If your device does not connect, ask a volunteer for assistance rather than changing network settings.</div></li>
+      <li><div><h3>Open the Dojo guide</h3>Scan the QR code on the station signage, or type <strong>http://10.50.70.249</strong> into your browser. If a volunteer gave you a printed address, use that.</div></li>
+      <li><div><h3>Choose a station</h3>Read the station instructions before starting. Follow the scope and safety guidance, and ask a volunteer if a lab target or task is unclear.</div></li>
+    </ol>
+    <div class="rs-actions">
+      <a class="rs-button rs-button-primary" href="/">Open the main guide</a>
+      <a class="rs-button" href="/stations/pharaohs-forge.html">Start at the Forge →</a>
+    </div>
+  </div>
+
+  <div class="rs-card">
+    <h2>Bring Your Own Kali</h2>
+    <h3 class="rs-label" style="margin-top:6px">Option A · Kali virtual machine</h3>
+    <p>Run Kali in your preferred local hypervisor. Keep the VM’s network configuration as instructed by the station volunteer; do not bridge it to networks outside the approved lab.</p>
+    <h3 class="rs-label">Option B · Kali on your laptop</h3>
+    <p>A bare-metal Kali installation is fine for attendees who already use one. Save your work and confirm you understand the station’s scope before testing.</p>
+    <h3 class="rs-label">Option C · Provided live USB</h3>
+    <p>If you are using a provided live USB, follow the volunteer’s boot instructions. Avoid saving personal credentials or sensitive files on shared or temporary media.</p>
+    <div class="rs-callout"><strong>Need a hand?</strong> Ask a Red Sands volunteer to help you connect or locate the correct station guide.</div>
+  </div>
+
+  <div class="rs-callout rs-callout-gold">
+    <strong>Do the activities from inside Kali.</strong> Reading on your phone is fine, but the hands-on steps — downloading capture files and running commands like <code>wget</code>, <code>tshark</code>, and <code>nmap</code> — happen in Kali. Once your Kali instance is on the <span class="network">Kali Dojo</span> network, open this guide in <em>Kali’s own browser</em> at <strong>http://10.50.70.249</strong> so you can grab files and copy commands right where you’ll run them.
+  </div>
+
+  <div class="rs-card rs-rules">
+    <h2>Rules of the Sands</h2>
+    <ul>
+      <li>Test only systems and targets explicitly provided or authorized for the exercise.</li>
+      <li>Keep scanning and exploitation activity inside the designated lab scope.</li>
+      <li>Do not conduct phishing, social engineering, or testing against venue, attendee, or public networks.</li>
+      <li>Report unexpected behavior to a volunteer and stop if you are unsure whether an action is in scope.</li>
+    </ul>
+  </div>
+
+  <div class="rs-callout rs-callout-gold ssid-note">
+    <strong>Connectivity tip:</strong> If the page will not load, check that you are connected to <span class="network">Kali Dojo</span> and try the URL or QR code shown on the station signage. The local guide does not require internet access.
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · Kali Linux Dojo</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+</body>
+</html>

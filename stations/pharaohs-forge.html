@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="Station 1 of the Red Sands Exploitation Arena: build and customize a Kali Linux environment for a mission.">
+<title>The Pharaoh’s Forge · Station 01 | Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+</head>
+<body>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/connect.html">Connect</a>
+      <a href="/stations/pharaohs-forge.html" aria-current="page"><span class="rs-num">01</span>The Forge</a>
+      <a href="/stations/scribes-arsenal.html"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html"><span class="rs-num">03</span>The Chamber</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">Station 01 · Build · Customize · Verify</p>
+  <h1>The Pharaoh’s Forge</h1>
+  <p class="rs-lead">Forge a Kali environment for the mission ahead. Learn how a custom Kali image, the famous <strong>“ISO of Doom”</strong>, is built for a specific task: choose a mission, inspect its package profile, and turn those choices into a bootable Live ISO.</p>
+  <ol class="rs-path">
+    <li aria-current="step">The Forge · build</li>
+    <li><a href="/stations/scribes-arsenal.html">The Arsenal · use</a></li>
+    <li><a href="/stations/hidden-chamber.html">The Chamber · apply</a></li>
+  </ol>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-card" style="border-top-color:var(--rs-gold)">
+    <p class="rs-label">Start here</p>
+    <h2>What exactly is an “ISO of Doom”?</h2>
+    <p>If the term is new, read the concept deep-dive first. In plain language, with pictures, it explains what a custom Kali image is, why you’d build one, and how the build actually works, no prior experience needed.</p>
+    <div class="rs-actions">
+      <a class="rs-button rs-button-primary" href="/resources/pharaohs-forge/iso-of-doom.html">The ISO of Doom, explained →</a>
+    </div>
+  </div>
+  <div class="rs-callout rs-callout-gold">
+    <strong>New to custom ISOs?</strong> You can still complete this station. Use the reference profile, follow the facilitator’s demonstration, and test the known-good ISO. A completed personal build is a stretch goal, not a requirement.
+  </div>
+</section>
+
+<section class="rs-wrap rs-section" aria-label="Mission profiles">
+  <div class="rs-section-head">
+    <p class="rs-eyebrow">Pick a mission</p>
+    <h2>Three mission profiles</h2>
+    <p>Choose one now. You’ll carry the same profile into the Scribe’s Arsenal and use its tools in the matching exercise.</p>
+  </div>
+  <div class="rs-grid-3">
+    <article class="rs-card">
+      <h3>Packet Analyst</h3>
+      <p>Prepare tools for examining a provided packet capture and identifying protocols and conversations.</p>
+      <p class="rs-muted"><strong>Example packages:</strong> <code>wireshark</code>, <code>tshark</code></p>
+    </article>
+    <article class="rs-card">
+      <h3>Network Mapper</h3>
+      <p>Prepare Nmap for discovery and service identification against the explicitly designated Red Sands lab target.</p>
+      <p class="rs-muted"><strong>Example package:</strong> <code>nmap</code></p>
+    </article>
+    <article class="rs-card">
+      <h3>Web Analyst</h3>
+      <p>Prepare basic tools for inspecting an authorized training web application.</p>
+      <p class="rs-muted"><strong>Example package:</strong> <code>curl</code>. Burp Suite Community Edition ships with Kali.</p>
+    </article>
+  </div>
+  <div class="rs-actions">
+    <a class="rs-button" href="/resources/scribes-arsenal/mission-profiles.html">Mission package worksheet →</a>
+  </div>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>Your challenge</h2>
+    <ol class="rs-steps">
+      <li>Choose a mission and identify the tools it requires.</li>
+      <li>Review the provided Kali package list. Preserve the existing base configuration.</li>
+      <li>Add or remove mission packages in the profile, with facilitator guidance.</li>
+      <li>If time and build capacity permit, build a custom Live ISO. Otherwise, inspect the reference profile and follow the build demonstration.</li>
+      <li>Boot the resulting ISO in a disposable VM and verify that the selected tools are available.</li>
+      <li>Take your mission profile to the Scribe’s Arsenal and use the tools in the matching exercise.</li>
+    </ol>
+    <div class="rs-callout rs-callout-warning">
+      <strong>Safety:</strong> Only scan and test explicitly authorized Red Sands lab targets. Never bridge vulnerable lab VMs to hotel Wi-Fi. Writing an ISO to a USB erases the selected destination drive; use a spare USB only.
+    </div>
+  </div>
+
+  <div class="rs-card">
+    <h2>Work through the Forge</h2>
+    <p>New here? The <a href="/resources/pharaohs-forge/attendee-guide.html">attendee field guide</a> is the guided path: choose a workspace, learn the Linux basics, personalize your environment, and pick a mission. The resources below go deeper — roughly in the order you’d reach for them.</p>
+    <div class="rs-actions">
+      <a class="rs-button rs-button-primary" href="/resources/pharaohs-forge/attendee-guide.html">Open the attendee field guide →</a>
+    </div>
+  </div>
+
+  <div class="rs-card">
+    <h2>Forge resources</h2>
+
+    <p class="rs-label" style="color:var(--rs-teal)">① Before you build · learn &amp; personalize</p>
+    <p class="rs-muted" style="margin-top:0">Get comfortable in Kali and set your environment up the way you like it — this is what you’ll later capture into an image.</p>
+    <div class="rs-actions">
+      <a class="rs-button" href="/resources/red-sands/linux-kali-foundations.html">Linux &amp; Kali foundations</a>
+      <a class="rs-button" href="/resources/pharaohs-forge/make-kali-yours.html">Make Kali Yours (bash automation)</a>
+      <a class="rs-button" href="/resources/pharaohs-forge/kali-builder.html">Kali Builder (interactive)</a>
+      <a class="rs-button" href="/resources/pharaohs-forge/terminal-multiplexers.html">Terminal multiplexers (tmux)</a>
+    </div>
+
+    <p class="rs-label" style="color:var(--rs-gold);margin-top:20px">② Build the ISO · capture it</p>
+    <p class="rs-muted" style="margin-top:0">Turn those choices into a repeatable custom image — the “ISO of Doom.”</p>
+    <div class="rs-actions">
+      <a class="rs-button" href="/resources/pharaohs-forge/iso-of-doom.html">The ISO of Doom, explained</a>
+      <a class="rs-button" href="/resources/red-sands/tooling-and-builds.html">Packages &amp; custom builds</a>
+      <a class="rs-button" href="/resources/pharaohs-forge/boot-and-test.html">Boot &amp; test your ISO</a>
+    </div>
+
+    <p class="rs-label" style="color:#e2967a;margin-top:20px">③ Harden &amp; go</p>
+    <p class="rs-muted" style="margin-top:0">Optional OPSEC once your environment is built.</p>
+    <div class="rs-actions">
+      <a class="rs-button" href="/resources/red-sands/anonymizing-kali.html">Anonymizing Kali (OPSEC)</a>
+    </div>
+  </div>
+
+  <div class="rs-actions" style="justify-content:flex-end">
+    <a class="rs-button rs-button-primary" href="/stations/scribes-arsenal.html">Continue to the Scribe’s Arsenal →</a>
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · The Pharaoh’s Forge · Kali Linux Dojo</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+</body>
+</html>

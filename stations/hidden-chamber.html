@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="Station 3 of the Red Sands Exploitation Arena: a tiered, hands-on exploitation lab against isolated Metasploitable training targets.">
+<title>The Hidden Chamber · Station 03 | Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<style>
+  .fig{margin:18px 0 6px}
+  .fig svg{width:100%;height:auto;display:block;border:1px solid var(--rs-line);
+    border-radius:var(--rs-radius-sm);background:#140f0b}
+  .fig figcaption{color:var(--rs-muted);font-size:.9rem;margin-top:10px;text-align:center}
+  .fig svg text{font-family:var(--rs-font-body)}
+  .d-box{fill:#221a12;stroke:#5a4228;stroke-width:1.5}
+  .d-box--teal{stroke:var(--rs-teal)}.d-box--red{stroke:var(--rs-red)}
+  .d-title{fill:var(--rs-gold);font-weight:800;font-size:15px}
+  .d-title--teal{fill:var(--rs-teal)}.d-title--red{fill:var(--rs-red)}
+  .d-sub{fill:#d7c7aa;font-size:13px}.d-cap{fill:#b9a888;font-size:12.5px}
+</style>
+</head>
+<body>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/connect.html">Connect</a>
+      <a href="/stations/pharaohs-forge.html"><span class="rs-num">01</span>The Forge</a>
+      <a href="/stations/scribes-arsenal.html"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html" aria-current="page"><span class="rs-num">03</span>The Chamber</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">Station 03 · Discover · Validate · Report</p>
+  <h1>The Hidden Chamber</h1>
+  <p class="rs-lead">Descend into an isolated lab of deliberately vulnerable targets. Your task is not to run every tool. It is to build a defensible understanding of a target, validate one finding safely, and report it like a professional.</p>
+  <ol class="rs-path">
+    <li><a href="/stations/pharaohs-forge.html">The Forge · build</a></li>
+    <li><a href="/stations/scribes-arsenal.html">The Arsenal · use</a></li>
+    <li aria-current="step">The Chamber · apply</li>
+  </ol>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-card rs-rules">
+    <h2>Lab boundary: read first</h2>
+    <ul>
+      <li>All activity stays on the two lab targets a volunteer points you to, nothing else, on the lab or anywhere.</li>
+      <li>Never point tools at hotel, conference, attendee, or public systems.</li>
+      <li>The targets are <strong>shared</strong>. Do not run exploits that crash a service or reboot a host, those are marked “volunteer demo only” below.</li>
+      <li>No persistence, no data destruction, no credential theft beyond the exercise. Ask a volunteer before changing lab settings or resetting a target.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ REACHING THE LAB ============ -->
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>Reach the lab</h2>
+    <p class="rs-muted">The vulnerable targets live on a separate, isolated lab network (VLAN 70) with <strong>no internet access</strong>. You don’t move onto that network. You stay on the Kali Dojo Wi-Fi, and the router lets you reach the two targets (and nothing else on the lab). Their reverse shells are allowed back to you.</p>
+
+    <figure class="fig">
+      <svg viewBox="0 0 840 360" role="img" aria-labelledby="lab-t lab-d">
+        <title id="lab-t">How you reach the lab targets</title>
+        <desc id="lab-d">Your Kali stays on the Kali Dojo Wi-Fi (VLAN 60). The DOJO-Router allows it to reach only the two lab targets on VLAN 70, the Linux box 10.50.70.52 and the Windows box 10.50.70.53. The lab has no internet access, and the targets' reverse shells are allowed back to you.</desc>
+        <defs>
+          <marker id="lab-teal" markerWidth="10" markerHeight="10" refX="6.5" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#6fc8bd"/></marker>
+          <marker id="lab-gold" markerWidth="10" markerHeight="10" refX="6.5" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#c8a24c"/></marker>
+        </defs>
+
+        <!-- internet, blocked from the lab -->
+        <rect x="300" y="18" width="150" height="44" rx="8" class="d-box"/>
+        <text x="375" y="46" text-anchor="middle" class="d-title">Internet</text>
+        <path d="M452 50 L520 92" stroke="#d0704f" stroke-width="1.6" fill="none" stroke-dasharray="5 5"/>
+        <text x="520" y="90" text-anchor="middle" fill="#d0704f" font-size="20" font-weight="800">✕</text>
+        <text x="470" y="74" fill="#e2967a" font-size="12">no internet</text>
+
+        <!-- attendee zone -->
+        <rect x="24" y="120" width="250" height="200" rx="12" fill="none" stroke="#3f5a54" stroke-width="1.5"/>
+        <text x="40" y="146" class="d-title d-title--teal" font-size="13">Kali Dojo Wi-Fi · VLAN 60</text>
+        <rect x="48" y="172" width="200" height="66" rx="8" class="d-box d-box--teal"/>
+        <text x="148" y="200" text-anchor="middle" class="d-title d-title--teal" font-size="14">Your Kali</text>
+        <text x="148" y="220" text-anchor="middle" class="d-cap">same Wi-Fi as Stations 1 &amp; 2</text>
+
+        <!-- router -->
+        <rect x="330" y="176" width="150" height="66" rx="8" class="d-box d-box--gold"/>
+        <text x="405" y="203" text-anchor="middle" class="d-title" font-size="13">DOJO-Router</text>
+        <text x="405" y="223" text-anchor="middle" class="d-cap">VLAN 60 → targets only</text>
+
+        <!-- lab panel -->
+        <rect x="540" y="96" width="288" height="224" rx="12" fill="none" stroke="#d0704f" stroke-width="1.6"/>
+        <text x="556" y="122" class="d-title d-title--red" font-size="13">LAB · VLAN 70 · isolated</text>
+        <rect x="560" y="142" width="250" height="52" rx="8" class="d-box"/>
+        <text x="624" y="165" text-anchor="middle" class="d-sub">Linux target</text>
+        <text x="762" y="165" text-anchor="middle" class="d-cap" font-family="ui-monospace,Menlo,monospace">10.50.70.52</text>
+        <rect x="560" y="210" width="250" height="52" rx="8" class="d-box"/>
+        <text x="624" y="233" text-anchor="middle" class="d-sub">Windows target</text>
+        <text x="762" y="233" text-anchor="middle" class="d-cap" font-family="ui-monospace,Menlo,monospace">10.50.70.53</text>
+
+        <!-- forward path: your kali -> router -> targets -->
+        <path d="M248 200 L326 202" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#lab-teal)"/>
+        <path d="M480 198 C514 196, 522 168, 556 168" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#lab-teal)"/>
+        <path d="M480 212 C514 214, 522 236, 556 236" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#lab-teal)"/>
+
+        <!-- reverse shell allowed back -->
+        <path d="M620 262 C560 322, 180 322, 150 242" stroke="#c8a24c" stroke-width="2" fill="none" stroke-dasharray="5 5" marker-end="url(#lab-gold)"/>
+        <text x="400" y="340" text-anchor="middle" class="d-cap" fill="#e2b75c">reverse shells are allowed back to you</text>
+      </svg>
+      <figcaption>You stay on the Kali Dojo Wi-Fi, the router lets you reach only <code>10.50.70.52</code> and <code>.53</code>, nothing else on the lab, and the lab has no internet.</figcaption>
+    </figure>
+
+    <ol class="rs-steps">
+      <li>Connect to the <strong>Kali Dojo Wi-Fi</strong>, the same network you used at Stations 1 and 2. You don’t switch networks for the lab; the router lets you through to the targets.</li>
+      <li>Your two targets are on the lab network (VLAN 70): <code>10.50.70.52</code> (Linux) and <code>10.50.70.53</code> (Windows). Set the one your challenge uses: <code>TARGET=10.50.70.52</code> <span class="rs-muted">(or <code>10.50.70.53</code>)</span></li>
+      <li>Confirm you can reach it: <code>ping -c2 "$TARGET"</code>. You’ll reach the targets and nothing else on the lab.</li>
+      <li>Take or confirm a clean VM snapshot before you begin, so you can roll back your own machine.</li>
+      <li>Keep notes in <code>~/red-sands/evidence/</code>, observation, command, result, timestamp.</li>
+    </ol>
+    <div class="rs-callout">
+      <strong>Two targets, same as the Arsenal:</strong> <code>10.50.70.52</code> (Linux) and <code>10.50.70.53</code> (Windows). A volunteer will point you to the right one for your challenge and tier. Bring the port list you built in the Scribe’s Arsenal. You’ll start from it.
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE CYCLE ============ -->
+<section class="rs-wrap rs-section">
+  <div class="rs-section-head">
+    <p class="rs-eyebrow">The assessment cycle</p>
+    <h2>Discover → Enumerate → Validate → Report</h2>
+    <p>Every challenge below follows the same four moves. The tier only changes how deep you go.</p>
+  </div>
+  <div class="rs-grid">
+    <article class="rs-card rs-card-plain"><p class="rs-label">Phase 01</p><h3>Discover</h3><p>Confirm the target address and which lab services are intentionally exposed.</p></article>
+    <article class="rs-card rs-card-plain"><p class="rs-label">Phase 02</p><h3>Enumerate</h3><p>Collect service and version detail with the approved workflow. Record what you see, don’t guess.</p></article>
+    <article class="rs-card rs-card-plain"><p class="rs-label">Phase 03</p><h3>Validate</h3><p>Safely test one volunteer-approved hypothesis. No destructive actions, persistence, or exfiltration.</p></article>
+    <article class="rs-card rs-card-plain"><p class="rs-label">Phase 04</p><h3>Report</h3><p>Explain the issue, your evidence, the realistic impact, and a practical remediation.</p></article>
+  </div>
+</section>
+
+<!-- ============ TIERED CHALLENGES ============ -->
+<section class="rs-wrap rs-section" aria-label="Chamber challenges">
+  <div class="rs-section-head">
+    <p class="rs-eyebrow">Work as deep as your time allows</p>
+    <h2>Three chambers, three depths</h2>
+    <p>Start at the Outer Chamber even if you’re experienced. It confirms your lab access works. Each tier links to a full step-by-step walkthrough; a volunteer can also guide you and holds the answer key.</p>
+    <div class="rs-actions"><a class="rs-button rs-button-primary" href="/resources/red-sands/chamber-missions.html">Open the guided walkthrough →</a></div>
+  </div>
+  <div class="rs-grid-3">
+
+    <article class="rs-card rs-mission">
+      <p class="rs-label">The Outer Chamber</p>
+      <div class="rs-meta"><span class="rs-pill rs-tier rs-tier-initiate">Initiate</span><span class="rs-pill">~15 min</span></div>
+      <h3>Enumerate &amp; inspect</h3>
+      <p>Low-risk reconnaissance that never changes the target. Good first contact with the lab.</p>
+      <ul>
+        <li>List the anonymous / world-readable content exposed by the FTP service (port 21).</li>
+        <li>Enumerate shared folders over SMB and note what’s readable (<code>smbclient -L //$TARGET</code>).</li>
+        <li>Browse the target’s web service and identify the application and its version.</li>
+      </ul>
+      <p class="rs-muted"><strong>Report:</strong> one service, its version, and one piece of information it leaks that it shouldn’t.</p>
+      <div class="rs-actions"><a class="rs-button" href="/resources/red-sands/chamber-missions.html#outer">Guided walkthrough →</a></div>
+    </article>
+
+    <article class="rs-card rs-mission">
+      <p class="rs-label">The Inner Chamber</p>
+      <div class="rs-meta"><span class="rs-pill rs-tier rs-tier-scribe">Scribe</span><span class="rs-pill">~25 min</span></div>
+      <h3>Validate a known weakness</h3>
+      <p>Confirm, don’t just suspect, a well-known vulnerability on a service you enumerated. Use the matching Metasploit module in <code>check</code> mode first.</p>
+      <ul>
+        <li>Linux: the web CMS (Drupal) or the FTP daemon’s known module-copy flaw.</li>
+        <li>Windows: the Jenkins script console, Tomcat manager, or Elasticsearch service.</li>
+        <li>Run the module with <code>check</code> before <code>run</code>; capture the evidence it reports.</li>
+      </ul>
+      <p class="rs-muted"><strong>Report:</strong> the CVE or module name, your validation evidence, and the realistic impact.</p>
+      <div class="rs-actions"><a class="rs-button" href="/resources/red-sands/chamber-missions.html#inner">Guided walkthrough →</a></div>
+    </article>
+
+    <article class="rs-card rs-mission">
+      <p class="rs-label">The Burial Chamber</p>
+      <div class="rs-meta"><span class="rs-pill rs-tier rs-tier-priest">High Priest</span><span class="rs-pill">~35 min</span></div>
+      <h3>Gain access &amp; recover the relic</h3>
+      <p>Chain your findings into authenticated or remote access on an approved service, then locate the flag file a volunteer describes.</p>
+      <ul>
+        <li>Obtain a session via a service you validated in the Inner Chamber.</li>
+        <li>Capture the service's flag, a hidden playing card, and recover the image. A volunteer names the one for your challenge.</li>
+        <li>Document the full path from discovery to access, the write-up is the deliverable.</li>
+      </ul>
+      <div class="rs-callout rs-callout-warning" style="margin-top:4px">
+        <strong>Volunteer demo only:</strong> SMB <code>MS17-010</code> (EternalBlue) and any memory-corruption exploit can crash the shared target. Watch these as a demo; don’t run them against the live lab host.
+      </div>
+      <div class="rs-actions" style="margin-top:12px"><a class="rs-button" href="/resources/red-sands/chamber-missions.html#burial">Guided walkthrough →</a></div>
+    </article>
+
+  </div>
+  <div class="rs-callout rs-callout-gold" style="margin-top:16px">
+    <strong>Prefer web hacking?</strong> There’s also a <strong>Hackazon</strong> track, the vulnerable shop from the Scribe’s Arsenal, taken from inspection to real SQL-injection, XSS, and access-control findings. <a href="/resources/red-sands/chamber-missions.html#hackazon">Open the Hackazon track →</a>
+  </div>
+</section>
+
+<!-- ============ REPORT WORKSHEET ============ -->
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>Finding worksheet</h2>
+    <p class="rs-muted">Whatever chamber you reach, write it up the same way. This is what separates “I ran a tool” from “I found something.”</p>
+    <div class="rs-grid">
+      <article class="rs-card rs-card-plain"><h3>Observation</h3><p>What did you see? Target, service, timestamp, and the relevant output.</p></article>
+      <article class="rs-card rs-card-plain"><h3>Evidence</h3><p>The single piece of proof behind your conclusion. Could another tester reproduce it?</p></article>
+      <article class="rs-card rs-card-plain"><h3>Impact</h3><p>What could an attacker realistically do if this existed in a real environment?</p></article>
+      <article class="rs-card rs-card-plain"><h3>Remediation</h3><p>The patch, configuration change, or compensating control that reduces the risk.</p></article>
+    </div>
+    <div class="rs-actions">
+      <a class="rs-button rs-button-primary" href="/resources/red-sands/documenting-and-reporting.html">Document &amp; Report toolkit →</a>
+      <a class="rs-button" href="/resources/red-sands/sample-report.html">See a worked sample report</a>
+    </div>
+  </div>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>Go deeper: tool references</h2>
+    <p class="rs-muted">Field companions to the tools these missions lean on, the mental model and the full workflow, not just the hint.</p>
+    <div class="rs-grid rs-grid-3">
+      <a class="rs-card rs-card-plain" href="/resources/red-sands/tool-metasploit.html"><h3>Metasploit →</h3><p>Modules, sessions, Meterpreter, <code>check</code> before <code>run</code>.</p></a>
+      <a class="rs-card rs-card-plain" href="/resources/red-sands/tool-nmap-nse.html"><h3>Nmap &amp; NSE →</h3><p>Scan types, timing, and the scripting engine.</p></a>
+      <a class="rs-card rs-card-plain" href="/resources/red-sands/tool-burp-suite.html"><h3>Burp Suite →</h3><p>Proxy, scope, Repeater, the Hackazon workbench.</p></a>
+    </div>
+    <div class="rs-callout rs-callout-gold">
+      <strong>Curious where AI fits?</strong> Each of these tools is growing an AI layer in the real world. We’re not using any of it here, but <a href="/resources/red-sands/ai-and-kali.html">AI + Kali: what’s possible</a> shows what it looks like, mapped to the stations you’ve worked.
+    </div>
+  </div>
+</section>
+
+<!-- ============ MISSION COMPLETE ============ -->
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>Mission complete?</h2>
+    <p class="rs-muted">Check off what you did. A volunteer can stamp your Arena passport and reset the target when you’re finished.</p>
+    <div data-checklist>
+      <ul class="rs-checklist">
+        <li><label><input type="checkbox"> I reached the lab target and confirmed I could reach nothing else.</label></li>
+        <li><label><input type="checkbox"> I enumerated at least one service and recorded its version.</label></li>
+        <li><label><input type="checkbox"> I validated a finding safely, in <code>check</code> mode where applicable.</label></li>
+        <li><label><input type="checkbox"> I can tell an observation apart from a confirmed finding.</label></li>
+        <li><label><input type="checkbox"> I wrote a finding with evidence, impact, and a remediation.</label></li>
+        <li><label><input type="checkbox"> I asked a volunteer to reset the target before leaving.</label></li>
+      </ul>
+      <p class="rs-progress" data-progress aria-live="polite"></p>
+    </div>
+    <div class="rs-actions">
+      <a class="rs-button rs-button-primary" href="/resources/red-sands/hidden-chamber-prep.html">Lab preparation &amp; safety guide →</a>
+      <a class="rs-button" href="/stations/scribes-arsenal.html">← Back to the Arsenal</a>
+    </div>
+  </div>
+  <div class="rs-callout rs-callout-gold">
+    <strong>Remember:</strong> a successful assessment is measured by trustworthy evidence and useful conclusions, not by the number of tools run or systems touched.
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · The Hidden Chamber · Kali Linux Dojo</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+
+<script src="/js/app.js" defer></script>
+</body>
+</html>

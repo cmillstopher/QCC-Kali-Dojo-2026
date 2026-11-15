@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="A field reference for Wireshark and tshark: capture vs display filters, following streams, the Statistics menu, object export, and command-line triage, the companion to the Packet Analyst mission.">
+<title>Wireshark &amp; tshark Reference · Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<style>
+  .reftable code{color:var(--rs-gold);font-weight:700;white-space:nowrap}
+  .phase{border-left:3px solid var(--rs-teal);padding:2px 0 2px 16px;margin:18px 0}
+  .phase h3{margin:0 0 6px}
+  .phase .ph-tag{color:var(--rs-teal);font-weight:800;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/stations/scribes-arsenal.html"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html"><span class="rs-num">03</span>The Chamber</a>
+      <a href="/resources/red-sands/documenting-and-reporting.html">Document &amp; Report</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">Supplemental reference · Station 02</p>
+  <h1>Wireshark &amp; tshark</h1>
+  <p class="rs-lead">The Packet Analyst mission hands you a capture and some questions. This is the deeper companion: how to filter down to the packets that matter, follow a conversation end to end, and pull the evidence out.</p>
+  <ol class="rs-path">
+    <li><a href="/stations/scribes-arsenal.html">The Arsenal</a></li>
+    <li aria-current="step">Wireshark &amp; tshark reference</li>
+  </ol>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>Two filters, and why people mix them up</h2>
+    <p>This is the single most useful thing to get straight:</p>
+    <div class="rs-grid">
+      <article class="rs-card rs-card-plain"><h3>Capture filter</h3><p>Decides <strong>what gets recorded</strong>, set <em>before</em> you capture. Uses BPF syntax (<code>tcp port 21</code>). You can’t get back what it dropped.</p></article>
+      <article class="rs-card rs-card-plain"><h3>Display filter</h3><p>Decides <strong>what you see</strong> in an already-loaded capture. Uses Wireshark syntax (<code>ftp</code>, <code>ip.addr==…</code>). Change it as often as you like, nothing is lost.</p></article>
+    </div>
+    <p class="rs-muted">For the mission you’re handed a finished <code>.pcapng</code>, so you live almost entirely in <strong>display filters</strong>, the big bar at the top of the window.</p>
+  </div>
+
+  <div class="rs-card">
+    <h2>Display-filter cookbook</h2>
+    <div class="rs-table-wrap">
+      <table class="rs-table reftable">
+        <thead><tr><th>Filter</th><th>Shows</th></tr></thead>
+        <tbody>
+          <tr><td><code>ip.addr == 10.50.70.52</code></td><td>Any packet to or from that host. <code>ip.src</code> / <code>ip.dst</code> for one direction.</td></tr>
+          <tr><td><code>tcp.port == 21</code></td><td>Traffic on a port (here, FTP control).</td></tr>
+          <tr><td><code>ftp</code></td><td>Just the FTP command channel, logins, commands, banners.</td></tr>
+          <tr><td><code>ftp-data</code></td><td>The separate channel files actually transfer over.</td></tr>
+          <tr><td><code>http</code> / <code>dns</code></td><td>Filter by protocol by name.</td></tr>
+          <tr><td><code>frame contains "pass"</code></td><td>Any packet whose bytes contain that text, great for finding cleartext secrets.</td></tr>
+          <tr><td><code>tcp.flags.syn == 1 &amp;&amp; tcp.flags.ack == 0</code></td><td>Connection starts, a quick way to see who initiated what.</td></tr>
+          <tr><td><code>ftp.request.command == "USER"</code></td><td>Field-level filtering, pick the exact command or header you want.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="rs-muted">Combine with <code>&amp;&amp;</code> (and), <code>||</code> (or), <code>!</code> (not). Wireshark turns the bar green when the syntax is valid.</p>
+  </div>
+
+  <div class="rs-card">
+    <h2>Follow the conversation</h2>
+    <p>Right-click any packet → <strong>Follow → TCP Stream</strong> (or HTTP/UDP). Wireshark stitches the whole back-and-forth into one readable window, the entire FTP login, every command, the server’s replies. This is usually where a Packet Analyst answer actually falls out.</p>
+    <pre><code># In the stream window:
+#  - client text is one colour, server another
+#  - "Show data as" → ASCII / Hex dump / Raw
+#  - "Filter Out This Stream" to remove it and move on</code></pre>
+  </div>
+
+  <div class="rs-card">
+    <h2>Let Wireshark summarise for you</h2>
+    <p>The <strong>Statistics</strong> menu answers “who’s here and what are they doing” without scrolling packets:</p>
+    <div class="rs-table-wrap">
+      <table class="rs-table reftable">
+        <tbody>
+          <tr><td>Statistics → <code>Protocol Hierarchy</code></td><td>What protocols exist in the capture, by volume. Your map of the whole file.</td></tr>
+          <tr><td>Statistics → <code>Conversations</code></td><td>Every host-to-host pair and byte counts, answers “how many hosts, talking to what.”</td></tr>
+          <tr><td>Statistics → <code>Endpoints</code></td><td>Every address seen, with packet/byte totals.</td></tr>
+          <tr><td>File → Export Objects → <code>FTP-DATA</code> / <code>HTTP</code></td><td>Carve transferred files straight out of the capture, recover that image or document.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rs-card">
+    <h2>tshark: the command line, for evidence and scripts</h2>
+    <p>Same engine, no GUI. Perfect for reproducible evidence and for pulling exact values into your notes.</p>
+    <pre><code># read a capture and apply a display filter
+tshark -r scribes-ledger.pcapng -Y "ftp"
+
+# print just the fields you want, as a table
+tshark -r scribes-ledger.pcapng -Y "ftp.request.command==\"USER\" || ftp.request.command==\"PASS\"" \
+  -T fields -e ip.src -e ftp.request.command -e ftp.request.arg
+
+# who talked to whom
+tshark -r scribes-ledger.pcapng -q -z conv,tcp
+
+# carve a transferred file back out
+tshark -r scribes-ledger.pcapng --export-objects ftp-data,./carved/</code></pre>
+    <p class="rs-muted">Pipe any of these to <code>| tee evidence/ftp_creds.txt</code> so the answer <em>and</em> its proof land in your evidence folder.</p>
+  </div>
+
+  <div class="rs-callout rs-callout-gold">
+    <strong>The AI angle.</strong> People are now pointing LLMs at capture files to ask “was anything sent in the clear?” in plain English, a triage layer on top of the filtering you’re learning here, not a replacement for reading the stream. See <a href="/resources/red-sands/ai-and-kali.html">AI + Kali: what’s possible</a>.
+  </div>
+
+  <div class="rs-actions">
+    <a class="rs-button rs-button-primary" href="/stations/scribes-arsenal.html">The Packet Analyst mission →</a>
+    <a class="rs-button" href="/resources/red-sands/documenting-and-reporting.html">Document &amp; Report</a>
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · Wireshark &amp; tshark reference</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+</body>
+</html>

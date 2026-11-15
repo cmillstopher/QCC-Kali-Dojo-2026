@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="Station 2 of the Red Sands Exploitation Arena: three hands-on Kali missions in packet analysis, network mapping, and web inspection.">
+<title>The Scribe’s Arsenal · Station 02 | Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<style>
+  .fig{margin:18px 0 6px}
+  .fig svg{width:100%;height:auto;display:block;border:1px solid var(--rs-line);
+    border-radius:var(--rs-radius-sm);background:#140f0b}
+  .fig figcaption{color:var(--rs-muted);font-size:.9rem;margin-top:10px;text-align:center}
+  .fig svg text{font-family:var(--rs-font-body)}
+  .d-box{fill:#221a12;stroke:#5a4228;stroke-width:1.5}
+  .d-box--teal{stroke:var(--rs-teal)}.d-box--red{stroke:var(--rs-red)}
+  .d-title{fill:var(--rs-gold);font-weight:800;font-size:15px}
+  .d-title--teal{fill:var(--rs-teal)}.d-title--red{fill:var(--rs-red)}
+  .d-sub{fill:#d7c7aa;font-size:13px}.d-cap{fill:#b9a888;font-size:12.5px}
+  .d-mono{font-family:var(--rs-font-mono);font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- Red Sands shared header -->
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/connect.html">Connect</a>
+      <a href="/stations/pharaohs-forge.html"><span class="rs-num">01</span>The Forge</a>
+      <a href="/stations/scribes-arsenal.html" aria-current="page"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html"><span class="rs-num">03</span>The Chamber</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">Station 02 · Wield Your Tools</p>
+  <h1>The Scribe’s Arsenal</h1>
+  <p class="rs-lead">You forged a toolkit next door. Now use it. Pick a mission, work through real captures and live lab targets, and write down what you find the way a professional would.</p>
+  <ol class="rs-path">
+    <li><a href="/stations/pharaohs-forge.html">The Forge · build</a></li>
+    <li aria-current="step">The Arsenal · use</li>
+    <li><a href="/stations/hidden-chamber.html">The Chamber · apply</a></li>
+  </ol>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-callout rs-callout-gold">
+    <strong>How this station works.</strong> Each mission is a short, self-contained exercise with a clear goal and an answer key held by a volunteer. Do one if you’re dropping in, or all three if you have time. Work only against the supplied captures and the single lab target a volunteer points you to. Open this guide <em>from inside your Kali instance</em> (browse to <strong>http://10.50.70.249</strong> on the <strong>Kali Dojo</strong> Wi-Fi) so you can download the captures and copy commands right where you’ll run them.
+  </div>
+</section>
+
+<!-- ============ THE THREE MISSIONS ============ -->
+<section class="rs-wrap rs-section" aria-label="Choose a mission">
+  <div class="rs-section-head">
+    <p class="rs-eyebrow">Choose a mission</p>
+    <h2>Three scrolls. Three skills.</h2>
+    <p>These are the same three mission profiles you prepared in the Pharaoh’s Forge. Carry your toolkit over and put it to work.</p>
+  </div>
+  <div class="rs-grid-3">
+
+    <article class="rs-card rs-mission">
+      <p class="rs-label">Mission I</p>
+      <h3>The Packet Analyst</h3>
+      <div class="rs-meta">
+        <span class="rs-pill rs-tier rs-tier-initiate">Initiate</span>
+        <span class="rs-pill">~15 min</span>
+        <span class="rs-pill">Wireshark · tshark</span>
+      </div>
+      <p>Read a captured conversation off the wire. Find who talked to whom, what was said in the clear, and the one detail an attacker would seize on.</p>
+      <a class="rs-button" href="#mission-packet">Open the scroll →</a>
+    </article>
+
+    <article class="rs-card rs-mission">
+      <p class="rs-label">Mission II</p>
+      <h3>The Network Mapper</h3>
+      <div class="rs-meta">
+        <span class="rs-pill rs-tier rs-tier-scribe">Scribe</span>
+        <span class="rs-pill">~15 min</span>
+        <span class="rs-pill">nmap</span>
+      </div>
+      <p>Map a single authorized target. Learn which services answer, which versions they report, and how to scan narrowly instead of loudly.</p>
+      <a class="rs-button" href="#mission-mapper">Open the scroll →</a>
+    </article>
+
+    <article class="rs-card rs-mission">
+      <p class="rs-label">Mission III</p>
+      <h3>The Web Analyst</h3>
+      <div class="rs-meta">
+        <span class="rs-pill rs-tier rs-tier-priest">High Priest</span>
+        <span class="rs-pill">~20 min</span>
+        <span class="rs-pill">curl · Burp CE</span>
+      </div>
+      <p>Interrogate a training web app by hand. Read its headers, follow a redirect, and tell the difference between what it shows you and what it reveals.</p>
+      <a class="rs-button" href="#mission-web">Open the scroll →</a>
+    </article>
+
+  </div>
+</section>
+
+<!-- ============ MISSION I ============ -->
+<section id="mission-packet" class="rs-wrap rs-section">
+  <div class="rs-card">
+    <p class="rs-label">Mission I · Initiate</p>
+    <h2>The Packet Analyst</h2>
+    <p class="rs-muted">Goal: open a capture file and answer four questions about the traffic inside it. No scanning, no network access, just evidence that is already on disk.</p>
+
+    <figure class="fig">
+      <svg viewBox="0 0 840 300" role="img" aria-labelledby="wire-t wire-d">
+        <title id="wire-t">Why cleartext protocols are a problem</title>
+        <desc id="wire-d">Over a plaintext protocol like FTP, a username and password travel across the wire readable by anyone on the path. Over an encrypted protocol the same login is scrambled and useless without the key.</desc>
+        <defs>
+          <marker id="w-red" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#d0704f"/></marker>
+          <marker id="w-teal" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#6fc8bd"/></marker>
+        </defs>
+
+        <!-- Row A: plaintext -->
+        <text x="24" y="32" class="d-title d-title--red">PLAINTEXT · FTP, HTTP, Telnet</text>
+        <rect x="30" y="54" width="120" height="52" rx="8" class="d-box"/>
+        <text x="90" y="86" text-anchor="middle" class="d-sub">Client</text>
+        <rect x="690" y="54" width="120" height="52" rx="8" class="d-box"/>
+        <text x="750" y="86" text-anchor="middle" class="d-sub">Server</text>
+        <path d="M150 80 L686 80" stroke="#d0704f" stroke-width="2" fill="none" marker-end="url(#w-red)"/>
+        <rect x="328" y="55" width="184" height="50" rx="7" fill="#2a2017" stroke="#e2b75c" stroke-width="1.5"/>
+        <text x="420" y="76" text-anchor="middle" class="d-mono" fill="#e2b75c">USER scribe</text>
+        <text x="420" y="95" text-anchor="middle" class="d-mono" fill="#e2b75c">PASS s3cret!</text>
+        <text x="420" y="128" text-anchor="middle" class="d-sub" fill="#e2967a">⚠ readable by anyone on the wire</text>
+
+        <!-- Row B: encrypted -->
+        <text x="24" y="190" class="d-title d-title--teal">ENCRYPTED · SFTP, FTPS, HTTPS</text>
+        <rect x="30" y="212" width="120" height="52" rx="8" class="d-box"/>
+        <text x="90" y="244" text-anchor="middle" class="d-sub">Client</text>
+        <rect x="690" y="212" width="120" height="52" rx="8" class="d-box"/>
+        <text x="750" y="244" text-anchor="middle" class="d-sub">Server</text>
+        <path d="M150 238 L686 238" stroke="#6fc8bd" stroke-width="2" fill="none" marker-end="url(#w-teal)"/>
+        <rect x="328" y="213" width="184" height="50" rx="7" fill="#17241f" stroke="#6fc8bd" stroke-width="1.5"/>
+        <text x="420" y="234" text-anchor="middle" class="d-mono" fill="#9ed9a5">a7f1··9c2e··b4</text>
+        <text x="420" y="253" text-anchor="middle" class="d-mono" fill="#9ed9a5">··4b··e1··d0··</text>
+        <text x="420" y="286" text-anchor="middle" class="d-sub" fill="#9ed9a5">✓ scrambled, useless without the key</text>
+      </svg>
+      <figcaption>Mission I in one picture: the capture holds a login that was sent in the clear. Your job is to read it.</figcaption>
+    </figure>
+
+    <h3>Get set up</h3>
+    <ol class="rs-steps">
+      <li>Open a terminal in your Kali workspace and make a place to work: <code>mkdir -p ~/red-sands/arsenal &amp;&amp; cd ~/red-sands/arsenal</code></li>
+      <li>Download the capture straight from the Arena site: <a href="/assets/pcaps/scribes-ledger.pcapng"><code>scribes-ledger.pcapng</code></a> — or grab it on the command line: <code>wget http://10.50.70.249/assets/pcaps/scribes-ledger.pcapng</code></li>
+      <li>Open it in Wireshark (<code>wireshark scribes-ledger.pcapng</code>) or read it on the command line with <code>tshark -r scribes-ledger.pcapng</code>.</li>
+    </ol>
+
+    <h3>Your questions</h3>
+    <ol class="rs-questions">
+      <li>Which two hosts are talking here, and which one is the <strong>FTP server</strong>? Give both IP addresses.</li>
+      <li>What FTP server <strong>software and version</strong> is running, and where in the capture did it tell you?</li>
+      <li>The client logs in to the server. What <strong>username and password</strong> does it send, and why can you read them straight off the capture?</li>
+      <li>What <strong>file</strong> does the client download, and how large does the server say it is?</li>
+      <li>Nothing in this session is encrypted. Besides the login, what <em>else</em> here could anyone on the network capture, and what single change would protect all of it?</li>
+    </ol>
+
+    <details class="rs-hint">
+      <summary>Hint: reading the FTP session</summary>
+      <p>Apply the display filter <code>ftp</code> to see just the control channel. The server’s very first reply (the <code>220</code> banner) names its software and version; the <code>USER</code> and <code>PASS</code> lines show the login; the <code>RETR</code> line names the file and the server’s <code>150</code> reply states its size. On the command line:</p>
+      <pre><code>tshark -r scribes-ledger.pcapng -Y "ftp" -T fields -e ftp.response.arg -e ftp.request.command -e ftp.request.arg</code></pre>
+      <p>To read a whole exchange as text, right-click a packet and choose <em>Follow &rarr; TCP Stream</em>. To pull the downloaded file back out of the capture, use <em>File &rarr; Export Objects &rarr; FTP-DATA</em>.</p>
+    </details>
+    <p class="rs-muted">Go deeper → <a href="/resources/red-sands/tool-wireshark.html">Wireshark &amp; tshark reference</a>.</p>
+
+    <div class="rs-callout">
+      <strong>Done?</strong> Take your answers to a volunteer to check against the key. Then push further in the same capture: <em>export the downloaded image out of it</em>, proof that the entire file, not just the password, crossed the wire in the clear.
+    </div>
+  </div>
+</section>
+
+<!-- ============ MISSION II ============ -->
+<section id="mission-mapper" class="rs-wrap rs-section">
+  <div class="rs-card">
+    <p class="rs-label">Mission II · Scribe</p>
+    <h2>The Network Mapper</h2>
+    <p class="rs-muted">Goal: run a focused Nmap scan against <strong>one</strong> lab target and report what you find. This is the only mission that touches a live host, pick one of the two targets below and scan only that address.</p>
+
+    <div class="rs-callout rs-callout-warning">
+      <strong>Scope, before anything else.</strong> Choose <strong>one</strong> of the two lab targets below and scan that address only. Both live on the isolated lab network (VLAN 70). Do not scan the attendee Wi-Fi, other attendees, the gateway, or any hotel or conference network.
+    </div>
+
+    <div class="rs-table-wrap">
+      <table class="rs-table">
+        <thead><tr><th>Pick a target</th><th>IP address</th><th>What it is</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Linux Metasploitable</strong></td><td><code>10.50.70.52</code></td><td>An Ubuntu server running web apps, FTP, Samba, a database and more, plenty of surface to map.</td></tr>
+          <tr><td><strong>Windows Metasploitable</strong></td><td><code>10.50.70.53</code></td><td>A Windows Server box running SMB, RDP, a web stack and app servers (Jenkins, Tomcat…).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Get set up</h3>
+    <ol class="rs-steps">
+      <li>Make sure you’re on the <strong>Kali Dojo Wi-Fi</strong> (the attendee network can reach the lab). Pick one target from the table and set it: <code>TARGET=10.50.70.52</code> <span class="rs-muted">(or <code>10.50.70.53</code> for the Windows box)</span></li>
+      <li>Check your tool is present: <code>nmap --version</code></li>
+      <li>Start with a light service/version scan:
+        <pre><code>nmap -sV -T3 --top-ports 100 "$TARGET"</code></pre></li>
+    </ol>
+
+    <h3>Your questions</h3>
+    <ol class="rs-questions">
+      <li>How many TCP ports are open on the target, and which ones?</li>
+      <li>Pick one open port. What service and version does Nmap report for it?</li>
+      <li>Add <code>-sC</code> to run Nmap’s default scripts against that one port (for example <code>nmap -sV -sC -p &lt;port&gt; "$TARGET"</code>). What extra detail does it surface?</li>
+      <li>Which one service here would you look at first in the Hidden Chamber, and why?</li>
+    </ol>
+
+    <details class="rs-hint">
+      <summary>Hint: scanning narrowly, not loudly</summary>
+      <p>Narrow the scope with <code>-p</code> to name exact ports (<code>-p 21,22,80</code>) rather than scanning everything. Keep timing at <code>-T3</code> or lower on a shared lab host so you don’t overwhelm it. <code>-sV</code> asks services to identify themselves; <code>-sC</code> runs safe default scripts; <code>-A</code> does both plus OS detection but is much noisier.</p>
+    </details>
+    <p class="rs-muted">Go deeper → <a href="/resources/red-sands/tool-nmap-nse.html">Nmap &amp; NSE reference</a>.</p>
+
+    <div class="rs-callout">
+      <strong>Done?</strong> Show a volunteer your port list and your pick for the Chamber. Carry those notes to Station 3. You’ll use them there. Time to spare? Scan the <em>other</em> box and compare how different a Linux and a Windows host look on the wire.
+    </div>
+  </div>
+</section>
+
+<!-- ============ MISSION III ============ -->
+<section id="mission-web" class="rs-wrap rs-section">
+  <div class="rs-card">
+    <p class="rs-label">Mission III · High Priest</p>
+    <h2>The Web Analyst</h2>
+    <p class="rs-muted">Goal: inspect a training web application by hand with <code>curl</code>, then look at the same requests in Burp Suite Community Edition. Use only the local training URL a volunteer provides.</p>
+
+    <h3>Get set up</h3>
+    <ol class="rs-steps">
+      <li>Get the training app’s URL from a volunteer and record it: <code>APP=http://______________</code></li>
+      <li>Fetch the page and read the <strong>response headers</strong> without downloading the body:
+        <pre><code>curl -sI "$APP"</code></pre></li>
+      <li>Now fetch the body and follow any redirect, so you see where the app actually sends you:
+        <pre><code>curl -sSL -D - "$APP" -o /tmp/body.html</code></pre></li>
+    </ol>
+
+    <h3>Your questions</h3>
+    <ol class="rs-questions">
+      <li>What web server and version do the response headers advertise?</li>
+      <li>Does the first request redirect? If so, what is the status code and where does it send you?</li>
+      <li>Find one security-relevant header that is <strong>missing</strong> (for example <code>Content-Security-Policy</code>, <code>X-Frame-Options</code>, or <code>Strict-Transport-Security</code>). Why does it matter?</li>
+      <li>Open the same URL through Burp CE’s proxy. Name one thing Burp shows you that the raw <code>curl</code> output did not make obvious.</li>
+    </ol>
+
+    <details class="rs-hint">
+      <summary>Hint: curl flags and the Burp proxy</summary>
+      <p><code>-I</code> fetches headers only; <code>-D -</code> dumps headers to your terminal alongside the body; <code>-L</code> follows redirects; <code>-v</code> shows the full request and response exchange. To send curl through Burp: <code>curl -x http://127.0.0.1:8080 "$APP"</code> with Burp’s proxy listening on 8080. Burp CE ships with Kali. You do not need the Professional edition for this mission.</p>
+    </details>
+    <p class="rs-muted">Go deeper → <a href="/resources/red-sands/tool-burp-suite.html">Burp Suite reference</a>.</p>
+
+    <div class="rs-callout">
+      <strong>Done?</strong> Walk a volunteer through your headers and your missing-header finding. That habit, reading what a service tells you before touching it, is exactly what Station 3 rewards.
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE DISCIPLINE ============ -->
+<section class="rs-wrap rs-section">
+  <div class="rs-section-head">
+    <p class="rs-eyebrow">The discipline behind every mission</p>
+    <h2>Define, select, execute, record</h2>
+    <p>Whatever the mission, the workflow is the same. Tools are easy; disciplined, repeatable work is the skill worth taking home.</p>
+  </div>
+  <div class="rs-grid">
+    <article class="rs-card rs-card-plain"><h3>1 · Define</h3><p>State the question you’re answering and name the one authorized target before you run anything.</p></article>
+    <article class="rs-card rs-card-plain"><h3>2 · Select</h3><p>Choose the smallest set of tools that answers the question. More tools is not more insight.</p></article>
+    <article class="rs-card rs-card-plain"><h3>3 · Execute</h3><p>Stay inside scope. Keep scans narrow and timing gentle on shared lab hosts.</p></article>
+    <article class="rs-card rs-card-plain"><h3>4 · Record</h3><p>Capture output, timestamps, and assumptions so another person could reproduce your result.</p></article>
+  </div>
+</section>
+
+<!-- ============ MISSION COMPLETE ============ -->
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>Mission complete?</h2>
+    <p class="rs-muted">Check off what you accomplished. A volunteer can stamp your Arena passport for any mission you finished.</p>
+    <div data-checklist>
+      <ul class="rs-checklist">
+        <li><label><input type="checkbox"> I identified the two hosts and the cleartext credentials in the capture.</label></li>
+        <li><label><input type="checkbox"> I scanned one authorized target and can read its open ports and service versions.</label></li>
+        <li><label><input type="checkbox"> I inspected a web app’s headers and named a missing security control.</label></li>
+        <li><label><input type="checkbox"> I can explain why scope and authorization come before any tool.</label></li>
+        <li><label><input type="checkbox"> I wrote notes another tester could reproduce.</label></li>
+      </ul>
+      <p class="rs-progress" data-progress aria-live="polite"></p>
+    </div>
+    <div class="rs-actions">
+      <a class="rs-button rs-button-primary" href="/stations/hidden-chamber.html">Continue to the Hidden Chamber →</a>
+      <a class="rs-button" href="/resources/red-sands/tooling-and-builds.html">Toolkit &amp; build reference</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RULES OF THE SANDS (standard safety block) ============ -->
+<section class="rs-wrap rs-section">
+  <div class="rs-card rs-rules">
+    <h2>Rules of the Sands</h2>
+    <ul>
+      <li>Work only against the supplied captures and the single lab target a volunteer authorizes.</li>
+      <li>Never scan or test hotel, conference, attendee, or public networks.</li>
+      <li>Keep scans narrow and timing gentle, the lab targets are shared by everyone.</li>
+      <li>Do not intercept other attendees’ traffic or collect anyone’s personal data.</li>
+      <li>Use synthetic notes only. Never store real passwords, tokens, or client data in practice files.</li>
+      <li>If you’re unsure whether something is in scope, stop and ask a volunteer first.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · The Scribe’s Arsenal · Kali Linux Dojo</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+
+<script src="/js/app.js" defer></script>
+</body>
+</html>

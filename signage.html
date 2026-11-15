@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<title>Red Sands Exploitation Arena · Signage</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<!--
+  ROTATING KIOSK DISPLAY for the Raspberry Pi screens. Fully offline.
+  Slides auto-advance every 10s; the page reloads every 30 min to pick up edits.
+  ─ TO UPDATE THE ARENA GUIDE ADDRESS: change data-arena-url below AND regenerate
+    /assets/qr/dojo-guide.png to encode the same URL. Currently encodes http://10.50.70.249/
+    (the IP, on purpose: many mobile devices with Private DNS / DoH / iCloud Private Relay
+    can't resolve the single-label "kali-dojo" name on an offline network. The IP always works.
+    The kali-dojo DNS record still exists for devices that can use it.)
+  ─ Wi-Fi join QR (/assets/qr/wifi-kali-dojo.svg) encodes SSID "Kali Dojo" + the password.
+    SSID, password, QR, and the AP's broadcast SSID must all match exactly (case + spaces).
+-->
+<style>
+  html,body{height:100%;margin:0;overflow:hidden}
+  body{font-family:var(--rs-font-body)}
+  .kiosk{position:fixed;inset:0;display:grid;grid-template-rows:1fr auto}
+  .kiosk::before{content:"";position:absolute;inset:1.2vh 1vw;border:2px solid rgba(226,183,92,.55);pointer-events:none;z-index:5}
+
+  .stage{position:relative;min-height:0}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+         text-align:center;padding:4vh 6vw;gap:2.2vh;opacity:0;transition:opacity .8s ease;pointer-events:none}
+  .slide.active{opacity:1}
+  @media (prefers-reduced-motion:reduce){.slide{transition:none}}
+
+  .eyebrow{color:var(--rs-teal);text-transform:uppercase;letter-spacing:.3em;font-weight:800;font-size:clamp(14px,1.5vw,26px)}
+  .title{font-family:var(--rs-font-display);color:var(--rs-gold);text-transform:uppercase;font-weight:800;
+         line-height:1.02;letter-spacing:.02em;margin:0;font-size:clamp(34px,6.4vw,104px)}
+  .motto{color:var(--rs-sand);font-size:clamp(18px,2.4vw,40px);letter-spacing:.03em;margin:0}
+  .sub{color:var(--rs-muted);font-size:clamp(16px,1.9vw,30px);margin:0;max-width:26ch}
+  .rule{height:3px;width:min(46vw,520px);background:linear-gradient(90deg,transparent,var(--rs-gold),transparent)}
+
+  /* station slide */
+  .st-num{color:var(--rs-teal);letter-spacing:.24em;font-weight:800;font-size:clamp(16px,1.8vw,30px)}
+  .st-topic{color:var(--rs-sand);font-size:clamp(20px,2.8vw,48px);font-weight:700;margin:0}
+  .st-do{color:var(--rs-muted);font-size:clamp(16px,2vw,32px);margin:0;max-width:30ch}
+
+  /* QR card (welcome + wifi) */
+  .qr-wrap{display:flex;gap:4vw;align-items:center;justify-content:center;flex-wrap:wrap}
+  .qr-card{background:#f5e9ce;border-radius:14px;padding:2.2vh 2vw;display:flex;flex-direction:column;align-items:center;gap:1vh}
+  .qr-card img{display:block;width:min(30vh,320px);height:auto;image-rendering:pixelated}
+  .qr-card svg{display:block;width:min(30vh,320px);height:auto}
+  .qr-cap{color:#2a2014;font-weight:900;letter-spacing:.06em;font-size:clamp(13px,1.2vw,20px);text-transform:uppercase}
+  .wifi-lines{display:flex;flex-direction:column;gap:1.4vh;align-items:flex-start;text-align:left}
+  .field-label{color:var(--rs-teal);text-transform:uppercase;letter-spacing:.18em;font-weight:800;font-size:clamp(14px,1.3vw,22px)}
+  .field-val{font-family:var(--rs-font-mono);color:var(--rs-gold);font-weight:700;
+             font-size:clamp(28px,4.4vw,72px);line-height:1;letter-spacing:.02em}
+  .url{font-family:var(--rs-font-mono);color:var(--rs-sand);font-size:clamp(16px,1.8vw,30px);font-weight:700}
+
+  /* rules slide */
+  .rules{max-width:min(90vw,1100px);text-align:left;color:var(--rs-sand);font-size:clamp(16px,2vw,32px);line-height:1.5;
+         list-style:none;padding:0;margin:0;display:grid;gap:1.4vh}
+  .rules li{padding-left:1.6em;position:relative}
+  .rules li::before{content:"\25B8";position:absolute;left:0;color:var(--rs-gold)}
+
+  /* footer bar + progress */
+  footer{display:flex;align-items:center;justify-content:space-between;gap:2vw;
+         border-top:1px solid rgba(226,183,92,.5);padding:1.4vh 3vw;color:var(--rs-muted);
+         font-size:clamp(13px,1.3vw,24px);position:relative;z-index:6}
+  footer strong{color:var(--rs-teal)}
+  .dots{display:flex;gap:.9vw}
+  .dot{width:clamp(9px,.9vw,16px);height:clamp(9px,.9vw,16px);border-radius:50%;
+       background:rgba(226,183,92,.3);transition:background .3s}
+  .dot.on{background:var(--rs-gold)}
+  .progress{position:absolute;left:0;bottom:0;height:4px;background:var(--rs-gold);width:0}
+</style>
+</head>
+<body data-arena-url="http://10.50.70.249/">
+<main class="kiosk">
+  <div class="stage" id="stage">
+
+    <!-- 1 · Wi-Fi -->
+    <section class="slide" data-slide>
+      <div class="eyebrow">Step 1 · Get Connected</div>
+      <h1 class="title">Join the Wi-Fi</h1>
+      <div class="rule"></div>
+      <div class="qr-wrap">
+        <div class="wifi-lines">
+          <div>
+            <div class="field-label">Network</div>
+            <div class="field-val">Kali Dojo</div>
+          </div>
+          <div>
+            <div class="field-label">Password</div>
+            <div class="field-val">qcckalidojo</div>
+          </div>
+        </div>
+        <div class="qr-card">
+          <img src="/assets/qr/wifi-kali-dojo.svg" alt="QR code to join the Kali Dojo Wi-Fi network automatically" onerror="this.style.display='none'">
+          <div class="qr-cap">Scan to join automatically</div>
+        </div>
+      </div>
+      <p class="sub">Leave IP settings on automatic. The Arena site works even without internet.</p>
+    </section>
+
+    <!-- 2 · Welcome -->
+    <section class="slide" data-slide>
+      <div class="eyebrow">Kali Linux · Hands-on Cybersecurity</div>
+      <h1 class="title">Red Sands<br>Exploitation Arena</h1>
+      <div class="rule"></div>
+      <p class="motto">Enter the sands. Forge your tools. Test your skills.</p>
+      <div class="qr-wrap">
+        <div class="qr-card">
+          <img src="/assets/qr/dojo-guide.png" alt="QR code to open the Arena guide">
+          <div class="qr-cap">Scan for the Arena guide</div>
+        </div>
+        <div>
+          <p class="sub">Three stations. Drop in, learn at your own pace, and ask a volunteer when you need a hand.</p>
+          <p class="url">or open <strong>http://10.50.70.249</strong> in your browser</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Station 1 -->
+    <section class="slide" data-slide>
+      <div class="st-num">Station 01</div>
+      <h1 class="title">The Pharaoh’s Forge</h1>
+      <div class="rule"></div>
+      <p class="st-topic">Build &amp; customize Kali</p>
+      <p class="st-do">Choose a mission, shape a Kali toolkit for it, and learn the ISO of Doom build workflow.</p>
+    </section>
+
+    <!-- 4 · Station 2 -->
+    <section class="slide" data-slide>
+      <div class="st-num">Station 02</div>
+      <h1 class="title">The Scribe’s Arsenal</h1>
+      <div class="rule"></div>
+      <p class="st-topic">Wield your tools</p>
+      <p class="st-do">Hands-on missions: packet analysis, scoped network mapping, and web inspection.</p>
+    </section>
+
+    <!-- 5 · Station 3 -->
+    <section class="slide" data-slide>
+      <div class="st-num">Station 03</div>
+      <h1 class="title">The Hidden Chamber</h1>
+      <div class="rule"></div>
+      <p class="st-topic">Discover · validate · report</p>
+      <p class="st-do">Work an isolated lab target through the full assessment cycle, then write up a finding.</p>
+    </section>
+
+    <!-- 6 · Rules -->
+    <section class="slide" data-slide>
+      <div class="eyebrow">Rules of the Sands</div>
+      <h1 class="title">Keep it in the Arena</h1>
+      <div class="rule"></div>
+      <ul class="rules">
+        <li>Test only the lab targets a volunteer authorizes, nothing else.</li>
+        <li>Never scan hotel, conference, attendee, or public networks.</li>
+        <li>Don’t bridge vulnerable lab VMs to hotel Wi-Fi or the internet.</li>
+        <li>Use synthetic data only, no real passwords or personal information.</li>
+        <li>Unsure if something’s in scope? Ask a volunteer first.</li>
+      </ul>
+    </section>
+
+  </div>
+
+  <footer>
+    <span>Connect to <strong>Kali Dojo</strong> · password <strong>qcckalidojo</strong></span>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <span>Ask a volunteer if you need a hand.</span>
+    <div class="progress" id="progress"></div>
+  </footer>
+</main>
+
+<script>
+(function(){
+  var SLIDE_MS = 10000;          // time per slide
+  var RELOAD_MS = 30*60*1000;    // full reload every 30 min to pick up edits
+  var slides = Array.prototype.slice.call(document.querySelectorAll('[data-slide]'));
+  var dotsBox = document.getElementById('dots');
+  var bar = document.getElementById('progress');
+
+  // fill arena URL from body attribute if a slide wants it (kept simple here)
+  slides.forEach(function(_,i){
+    var d=document.createElement('span'); d.className='dot'; dotsBox.appendChild(d);
+  });
+  var dots = Array.prototype.slice.call(dotsBox.children);
+  var idx = 0, start = Date.now();
+
+  function show(n){
+    slides.forEach(function(s,i){ s.classList.toggle('active', i===n); });
+    dots.forEach(function(d,i){ d.classList.toggle('on', i===n); });
+    idx = n; start = Date.now();
+  }
+  function tick(){
+    var el = Date.now() - start;
+    bar.style.width = Math.min(100, (el/SLIDE_MS)*100) + '%';
+    if (el >= SLIDE_MS) show((idx+1) % slides.length);
+    requestAnimationFrame(tick);
+  }
+  show(0);
+  requestAnimationFrame(tick);
+  setTimeout(function(){ location.reload(); }, RELOAD_MS);
+})();
+</script>
+</body>
+</html>

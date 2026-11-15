@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="A field reference for the Metasploit Framework: its mental model, the msfconsole workflow, modules, sessions and Meterpreter, the companion to the Hidden Chamber missions.">
+<title>Metasploit Reference · Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<style>
+  .reftable code{color:var(--rs-gold);font-weight:700;white-space:nowrap}
+  .phase{border-left:3px solid var(--rs-teal);padding:2px 0 2px 16px;margin:18px 0}
+  .phase h3{margin:0 0 6px}
+  .phase .ph-tag{color:var(--rs-teal);font-weight:800;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/stations/scribes-arsenal.html"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html"><span class="rs-num">03</span>The Chamber</a>
+      <a href="/resources/red-sands/chamber-missions.html">Missions</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">Supplemental reference · Station 03</p>
+  <h1>The Metasploit Framework</h1>
+  <p class="rs-lead">The Chamber missions tell you to <code>search</code>, <code>use</code>, and <code>check</code>. This page is the deeper companion: what Metasploit actually is, how it’s organised, and how to drive it with intent instead of copy-paste.</p>
+  <ol class="rs-path">
+    <li><a href="/stations/hidden-chamber.html">The Chamber</a></li>
+    <li aria-current="step">Metasploit reference</li>
+  </ol>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>What it is, and when to reach for it</h2>
+    <p>Metasploit is a <strong>framework</strong>, not a single tool, a large, organised library of exploit, scanning, and post-exploitation code behind one console. It shines once you’ve <em>identified a specific service and version</em> and want a reliable, well-documented way to validate and demonstrate a known weakness. It is <strong>not</strong> a first step: you still discover and enumerate by hand first. In the Chamber, it’s the Inner and Burial tool, after Nmap has told you what you’re looking at.</p>
+  </div>
+
+  <div class="rs-card">
+    <h2>The mental model: modules</h2>
+    <p>Everything in Metasploit is a <strong>module</strong>. Knowing the five types you’ll meet tells you what a module will do before you run it:</p>
+    <div class="rs-table-wrap">
+      <table class="rs-table reftable">
+        <thead><tr><th>Module type</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>auxiliary</code></td><td>Scanners, enumerators, and checks that don’t deliver a payload: login testers, version grabbers, fuzzers. Safe end of the pool.</td></tr>
+          <tr><td><code>exploit</code></td><td>Delivers a payload by abusing a specific flaw. This is the one that needs a <code>check</code> first and a volunteer for anything risky.</td></tr>
+          <tr><td><code>payload</code></td><td>The code that runs <em>on the target</em> after an exploit lands, e.g. a Meterpreter session or a plain shell.</td></tr>
+          <tr><td><code>post</code></td><td>Runs <em>through a session you already have</em>, gather info, loot files, pivot.</td></tr>
+          <tr><td><code>encoder</code> / <code>nop</code></td><td>Reshape a payload to get it past filters. Rarely needed in the lab; good to recognise the names.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="rs-muted">Two other ideas you’ll lean on: the <strong>database</strong> (Metasploit remembers hosts, services, and loot per <em>workspace</em>) and the <strong>session</strong> (an open connection to a target you’ve landed on).</p>
+  </div>
+
+  <div class="rs-card">
+    <h2>Start it up</h2>
+    <pre><code>sudo msfdb init        # one-time: start the backing database
+msfconsole -q          # -q skips the banner
+workspace -a redsands  # keep this engagement's data in its own space
+db_status              # confirm the database is connected</code></pre>
+    <p>Already ran Nmap? Import it so Metasploit knows your hosts and services, or scan from inside the console:</p>
+    <pre><code>db_import nmap_$TARGET.xml      # pull in an -oX scan
+db_nmap -sV -sC "$TARGET"       # or run nmap from msf; results auto-saved
+hosts                            # review what the database now knows
+services                         # ports/products across the workspace</code></pre>
+  </div>
+
+  <div class="rs-card">
+    <h2>The core loop, mapped to the Chamber</h2>
+
+    <figure class="fig">
+      <svg viewBox="0 0 900 210" role="img" aria-labelledby="msf-t msf-d">
+        <title id="msf-t">The msfconsole workflow</title>
+        <desc id="msf-d">Six steps in a line. search finds a module, use selects it, set configures it, then check asks whether the target is actually vulnerable. check is the safety gate: the Inner Chamber mission stops here. Only after check do you run the exploit, which is Burial Chamber work and volunteer-led, and a success opens a session on the target.</desc>
+        <defs>
+          <marker id="msf-teal" markerWidth="10" markerHeight="10" refX="6.5" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#6fc8bd"/></marker>
+        </defs>
+
+        <!-- zone labels -->
+        <text x="300" y="30" text-anchor="middle" class="d-cap" fill="#6fc8bd">validate · Inner Chamber</text>
+        <text x="724" y="30" text-anchor="middle" class="d-cap" fill="#d0704f">exploit · Burial, volunteer-led</text>
+        <line x1="590" y1="40" x2="590" y2="178" stroke="#6b5230" stroke-width="1.3" stroke-dasharray="4 4"/>
+
+        <!-- 1 search -->
+        <rect x="20" y="64" width="118" height="96" rx="9" class="d-box d-box--teal"/>
+        <text x="79" y="104" text-anchor="middle" class="d-title d-mono" font-size="15">search</text>
+        <text x="79" y="130" text-anchor="middle" class="d-cap">find a module</text>
+        <!-- 2 use -->
+        <rect x="166" y="64" width="118" height="96" rx="9" class="d-box d-box--teal"/>
+        <text x="225" y="104" text-anchor="middle" class="d-title d-mono" font-size="15">use</text>
+        <text x="225" y="130" text-anchor="middle" class="d-cap">select it</text>
+        <!-- 3 set -->
+        <rect x="312" y="64" width="118" height="96" rx="9" class="d-box d-box--teal"/>
+        <text x="371" y="104" text-anchor="middle" class="d-title d-mono" font-size="15">set</text>
+        <text x="371" y="130" text-anchor="middle" class="d-cap">aim at target</text>
+        <!-- 4 check (gate) -->
+        <rect x="458" y="64" width="118" height="96" rx="9" class="d-box d-box--gold"/>
+        <text x="517" y="104" text-anchor="middle" class="d-title d-mono" font-size="15">check</text>
+        <text x="517" y="130" text-anchor="middle" class="d-cap" fill="#e2b75c">vulnerable?</text>
+        <!-- 5 run -->
+        <rect x="604" y="64" width="118" height="96" rx="9" class="d-box d-box--red"/>
+        <text x="663" y="104" text-anchor="middle" class="d-title d-mono d-title--red" font-size="15">run</text>
+        <text x="663" y="130" text-anchor="middle" class="d-cap">fire the exploit</text>
+        <!-- 6 session -->
+        <rect x="750" y="64" width="118" height="96" rx="9" class="d-box d-box--teal"/>
+        <text x="809" y="104" text-anchor="middle" class="d-title d-mono" font-size="15">session</text>
+        <text x="809" y="130" text-anchor="middle" class="d-cap">shell / meterpreter</text>
+
+        <!-- arrows -->
+        <path d="M138 112 L164 112" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#msf-teal)"/>
+        <path d="M284 112 L310 112" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#msf-teal)"/>
+        <path d="M430 112 L456 112" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#msf-teal)"/>
+        <path d="M576 112 L602 112" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#msf-teal)"/>
+        <path d="M722 112 L748 112" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#msf-teal)"/>
+        <text x="589" y="196" text-anchor="middle" class="d-cap" fill="#b9a888">only after check</text>
+      </svg>
+      <figcaption><code>check</code> is the gate: the Inner Chamber stops here. <code>run</code> is Burial Chamber work, read the module and coordinate with a volunteer first.</figcaption>
+    </figure>
+
+    <div class="phase">
+      <span class="ph-tag">Find the right module</span>
+      <h3>search &amp; info</h3>
+      <pre><code>search type:exploit name:&lt;product&gt;     # narrow by product you enumerated
+info &lt;module&gt;                          # read it BEFORE using: targets, rank, refs, options
+use &lt;module&gt;                           # select it (tab-completion works)</code></pre>
+      <p class="rs-muted">Prefer modules ranked <code>excellent</code>/<code>great</code> and read the description, the <code>rank</code> tells you how reliable and how likely to crash the service it is.</p>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Set it up</span>
+      <h3>options &amp; targets</h3>
+      <pre><code>show options            # what the module needs
+set RHOSTS "$TARGET"     # the target
+set RPORT &lt;port&gt;         # if not the default
+show targets            # some exploits need the exact OS/version target id
+setg RHOSTS "$TARGET"    # setg = set globally, so you don't retype it</code></pre>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Validate: stop here at the Inner Chamber</span>
+      <h3>check</h3>
+      <pre><code>check     # asks "is this target actually vulnerable?" without firing the exploit</code></pre>
+      <p>Not every module supports <code>check</code>, but when it does, this is how you <em>confirm a finding</em> without risk. Read what it reports and write it up, that alone completes the Inner Chamber.</p>
+    </div>
+
+    <div class="phase">
+      <span class="ph-tag">Exploit: Burial Chamber, with care</span>
+      <h3>run / exploit → session</h3>
+      <pre><code>set PAYLOAD &lt;payload&gt;    # e.g. a meterpreter or generic shell matching the target
+run                     # or 'exploit'; a success opens a session
+sessions -l             # list sessions
+sessions -i 1           # interact with session 1</code></pre>
+      <div class="rs-callout rs-callout-warning">Only run a module whose <code>check</code> (or docs) you’ve read. Anything that can crash or lock a service is a <strong>volunteer-led demo</strong> on the shared lab boxes, coordinate first.</div>
+    </div>
+  </div>
+
+  <div class="rs-card">
+    <h2>Meterpreter, briefly</h2>
+    <p>Meterpreter is a feature-rich payload that gives you a command channel on the target. A handful of commands cover most of the lab:</p>
+    <div class="rs-table-wrap">
+      <table class="rs-table reftable">
+        <tbody>
+          <tr><td><code>sysinfo</code></td><td>OS, architecture, hostname. Your first screenshot of proof.</td></tr>
+          <tr><td><code>getuid</code></td><td>Who you are on the target.</td></tr>
+          <tr><td><code>pwd</code> / <code>ls</code> / <code>cd</code></td><td>Move around the filesystem.</td></tr>
+          <tr><td><code>cat &lt;file&gt;</code></td><td>Read a file, e.g. recover a flag.</td></tr>
+          <tr><td><code>download &lt;file&gt;</code></td><td>Pull evidence back to your Kali box.</td></tr>
+          <tr><td><code>shell</code></td><td>Drop to a native OS shell.</td></tr>
+          <tr><td><code>background</code></td><td>Park the session (back to <code>msf&gt;</code>) without closing it.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rs-card">
+    <h2>Console survival kit</h2>
+    <div class="rs-table-wrap">
+      <table class="rs-table reftable">
+        <tbody>
+          <tr><td><code>back</code></td><td>Leave the current module.</td></tr>
+          <tr><td><code>sessions -K</code></td><td>Kill all sessions (clean up after yourself).</td></tr>
+          <tr><td><code>spool out.log</code></td><td>Log the whole console to a file, evidence.</td></tr>
+          <tr><td><code>loot</code> / <code>notes</code></td><td>Review what the database has gathered.</td></tr>
+          <tr><td><code>exit -y</code></td><td>Quit msfconsole.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="rs-muted" style="margin-top:10px">Keep <code>spool</code> running and screenshot key moments, the Chamber grades the write-up, not the shell.</p>
+  </div>
+
+  <div class="rs-callout rs-callout-gold">
+    <strong>The AI angle.</strong> Assistants can now read a service banner and suggest which module to <code>check</code>, or drive Metasploit through an MCP server, but the <code>check</code>-before-<code>run</code> discipline on this page is exactly what keeps a human accountable. See <a href="/resources/red-sands/ai-and-kali.html">AI + Kali: what’s possible</a>.
+  </div>
+
+  <div class="rs-actions">
+    <a class="rs-button rs-button-primary" href="/resources/red-sands/chamber-missions.html#inner">The Inner Chamber mission →</a>
+    <a class="rs-button" href="/resources/red-sands/documenting-and-reporting.html">Document &amp; Report</a>
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · Metasploit reference</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+</body>
+</html>

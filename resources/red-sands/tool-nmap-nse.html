@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="A field reference for Nmap and the Nmap Scripting Engine: scan types, port selection, timing, output formats, and NSE categories, the companion to the Network Mapper mission and the Chamber's enumerate phase.">
+<title>Nmap &amp; NSE Reference · Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<style>
+  .reftable code{color:var(--rs-gold);font-weight:700;white-space:nowrap}
+  .phase{border-left:3px solid var(--rs-teal);padding:2px 0 2px 16px;margin:18px 0}
+  .phase h3{margin:0 0 6px}
+  .phase .ph-tag{color:var(--rs-teal);font-weight:800;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/stations/scribes-arsenal.html"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html"><span class="rs-num">03</span>The Chamber</a>
+      <a href="/resources/red-sands/chamber-missions.html">Missions</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">Supplemental reference · Stations 02–03</p>
+  <h1>Nmap &amp; the Scripting Engine</h1>
+  <p class="rs-lead">The Network Mapper mission starts you with <code>nmap -sV</code>. This is the deeper companion: the scan types, how to aim and pace them, and how the Scripting Engine turns Nmap from a port lister into an enumeration tool.</p>
+  <ol class="rs-path">
+    <li><a href="/stations/scribes-arsenal.html">The Arsenal</a></li>
+    <li aria-current="step">Nmap &amp; NSE reference</li>
+  </ol>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>What a scan is really doing</h2>
+    <p>Nmap works in layers, and most flags just turn a layer on: <strong>host discovery</strong> (is it up?) → <strong>port scan</strong> (what’s open?) → <strong>service/version detection</strong> (what’s listening?) → <strong>scripts</strong> (what can I learn or confirm?). Knowing which layer a flag touches is how you read any command at a glance.</p>
+    <figure class="fig">
+      <svg viewBox="0 0 900 170" role="img" aria-labelledby="nm-t nm-d">
+        <title id="nm-t">The layers of an Nmap scan</title>
+        <desc id="nm-d">Four layers run in order, and flags turn each one on. Host discovery asks whether the target is up, with -sn or skip it with -Pn. Port scan asks what is open, with -sS or -sT. Service and version detection asks what is listening, with -sV. Scripts, the Nmap Scripting Engine, ask what you can learn or confirm, with -sC or --script.</desc>
+        <defs>
+          <marker id="nm-teal" markerWidth="10" markerHeight="10" refX="6.5" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#6fc8bd"/></marker>
+        </defs>
+
+        <!-- 1 host discovery -->
+        <rect x="14" y="44" width="196" height="104" rx="9" class="d-box d-box--teal"/>
+        <text x="112" y="80" text-anchor="middle" class="d-title" font-size="14">Host discovery</text>
+        <text x="112" y="104" text-anchor="middle" class="d-sub">is it up?</text>
+        <text x="112" y="130" text-anchor="middle" class="d-cap d-mono" fill="#e2b75c">-sn · -Pn</text>
+        <!-- 2 port scan -->
+        <rect x="242" y="44" width="196" height="104" rx="9" class="d-box d-box--teal"/>
+        <text x="340" y="80" text-anchor="middle" class="d-title" font-size="14">Port scan</text>
+        <text x="340" y="104" text-anchor="middle" class="d-sub">what is open?</text>
+        <text x="340" y="130" text-anchor="middle" class="d-cap d-mono" fill="#e2b75c">-sS · -sT</text>
+        <!-- 3 service/version -->
+        <rect x="470" y="44" width="196" height="104" rx="9" class="d-box d-box--teal"/>
+        <text x="568" y="80" text-anchor="middle" class="d-title" font-size="14">Service / version</text>
+        <text x="568" y="104" text-anchor="middle" class="d-sub">what is listening?</text>
+        <text x="568" y="130" text-anchor="middle" class="d-cap d-mono" fill="#e2b75c">-sV</text>
+        <!-- 4 scripts -->
+        <rect x="698" y="44" width="196" height="104" rx="9" class="d-box d-box--gold"/>
+        <text x="796" y="80" text-anchor="middle" class="d-title" font-size="14">Scripts · NSE</text>
+        <text x="796" y="104" text-anchor="middle" class="d-sub">what can I learn?</text>
+        <text x="796" y="130" text-anchor="middle" class="d-cap d-mono" fill="#e2b75c">-sC · --script</text>
+
+        <!-- arrows -->
+        <path d="M210 96 L240 96" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#nm-teal)"/>
+        <path d="M438 96 L468 96" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#nm-teal)"/>
+        <path d="M666 96 L696 96" stroke="#6fc8bd" stroke-width="2.5" fill="none" marker-end="url(#nm-teal)"/>
+      </svg>
+      <figcaption>Read any Nmap command by asking which layer each flag switches on. <code>-A</code> simply turns on several at once.</figcaption>
+    </figure>
+  </div>
+
+  <div class="rs-card">
+    <h2>Scan types</h2>
+    <div class="rs-table-wrap">
+      <table class="rs-table reftable">
+        <thead><tr><th>Flag</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>-sS</code></td><td>SYN “half-open” scan, fast and the default when run as root.</td></tr>
+          <tr><td><code>-sT</code></td><td>Full TCP connect scan, used automatically without root.</td></tr>
+          <tr><td><code>-sU</code></td><td>UDP scan, slow, but the only way to see SNMP, DNS, etc. Pair with a port list.</td></tr>
+          <tr><td><code>-sn</code></td><td>Ping sweep, host discovery only, no port scan. “What’s alive on this subnet?”</td></tr>
+          <tr><td><code>-Pn</code></td><td>Skip host discovery, treat the target as up. Use when a host ignores pings.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rs-card">
+    <h2>Aim, detect, pace</h2>
+    <p class="rs-label">Which ports</p>
+    <pre><code>-p 21,22,80,445      # specific ports
+--top-ports 100      # the 100 most common (good default)
+-p-                  # all 65,535 - thorough, slow, noisy</code></pre>
+    <p class="rs-label">What's listening</p>
+    <pre><code>-sV                  # service + version detection
+-sC                  # run the "default" safe scripts
+-O                   # OS detection (needs root)
+-A                   # aggressive: -sV, -O, default scripts, traceroute at once</code></pre>
+    <p class="rs-label">How fast (and how polite)</p>
+    <pre><code>-T0 … -T5            # paranoid → insane; -T3 is normal, -T4 faster</code></pre>
+    <div class="rs-callout rs-callout-warning">On the shared lab boxes, keep to <code>-T3</code> or lower and avoid <code>-p-</code> sweeps during busy periods, a hammering scan slows the target for everyone. Scan the target you were given, nothing else.</div>
+  </div>
+
+  <div class="rs-card">
+    <h2>Save everything (it’s evidence)</h2>
+    <pre><code>-oN scan.txt         # normal, human-readable
+-oX scan.xml         # XML - the format Metasploit's db_import wants
+-oG scan.gnmap       # greppable
+-oA scan             # all three at once, basename "scan"</code></pre>
+    <p class="rs-muted">Get into the habit of <code>-oA</code> on every real scan. You’ll want the XML later and the text now.</p>
+  </div>
+
+  <div class="rs-card">
+    <h2>The Scripting Engine (NSE)</h2>
+    <p>NSE is a library of ~600 scripts that run against open ports to enumerate, detect vulnerabilities, and more. Scripts are grouped into <strong>categories</strong>, call one category, one script, or a pattern.</p>
+    <pre><code>nmap --script default "$TARGET"            # same as -sC
+nmap --script "ftp-*" -p21 "$TARGET"       # all ftp scripts
+nmap --script vuln "$TARGET"               # safe-ish vuln detection
+nmap --script smb-os-discovery -p445 "$TARGET"
+nmap --script http-enum -p80 "$TARGET"     # find interesting web paths
+nmap --script-help ftp-anon                # read what a script does first</code></pre>
+    <div class="rs-table-wrap">
+      <table class="rs-table reftable">
+        <thead><tr><th>Category</th><th>Nature</th></tr></thead>
+        <tbody>
+          <tr><td><code>safe</code> / <code>default</code></td><td>Won’t crash or exploit. Run freely.</td></tr>
+          <tr><td><code>discovery</code> / <code>version</code></td><td>Enumeration, gather detail about a service.</td></tr>
+          <tr><td><code>vuln</code></td><td>Detects known vulnerabilities. Mostly detection-only, but read each one.</td></tr>
+          <tr><td><code>auth</code> / <code>brute</code></td><td>Tests credentials, <strong>can lock accounts</strong>. Gentle, volunteer-gated.</td></tr>
+          <tr><td><code>intrusive</code> / <code>exploit</code> / <code>dos</code></td><td>Can disrupt or exploit a service. <strong>Demo-only</strong> on shared boxes.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="rs-muted">Scripts live in <code>/usr/share/nmap/scripts/</code>; refresh the index after adding one with <code>sudo nmap --script-updatedb</code>.</p>
+  </div>
+
+  <div class="rs-card">
+    <h2>A sensible default, annotated</h2>
+    <pre><code>sudo nmap -sS -sV -sC -T3 --top-ports 100 -oA nmap_$TARGET "$TARGET"
+#        │    │    │    │    │                │
+#        │    │    │    │    │                └ save all three formats
+#        │    │    │    │    └ the common ports
+#        │    │    │    └ normal timing
+#        │    │    └ default safe scripts
+#        │    └ version detection
+#        └ SYN scan (root)</code></pre>
+    <p>Read it top to bottom; note every open port and the product/version. That list is what you hand to <a href="/resources/red-sands/tool-metasploit.html">Metasploit</a>, or what feeds the Chamber’s enumerate phase.</p>
+  </div>
+
+  <div class="rs-callout rs-callout-gold">
+    <strong>The AI angle.</strong> Assistants can now turn “a stealthy version scan of these ports” into the exact Nmap command, or read a scan back and summarise it, handy, but you still need to know what <code>-sS</code> and <code>vuln</code> mean to catch a bad suggestion. See <a href="/resources/red-sands/ai-and-kali.html">AI + Kali: what’s possible</a>.
+  </div>
+
+  <div class="rs-actions">
+    <a class="rs-button rs-button-primary" href="/stations/scribes-arsenal.html">The Network Mapper mission →</a>
+    <a class="rs-button" href="/resources/red-sands/chamber-missions.html#outer">The Chamber’s enumerate phase</a>
+    <a class="rs-button" href="/resources/red-sands/documenting-and-reporting.html">Document &amp; Report</a>
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · Nmap &amp; NSE reference</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+</body>
+</html>

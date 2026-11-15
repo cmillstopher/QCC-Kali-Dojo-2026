@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="robots" content="noindex">
+<meta name="description" content="Staff-only guide to the Hackazon vulnerable web app: its attack surfaces, the main vulnerability classes and where to find them, and how volunteers verify a finding.">
+<title>Hackazon Volunteer Guide (Staff) · Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<style>
+  .staff-bar{background:var(--rs-red);color:#1a0f0a;font-weight:800;text-align:center;
+    letter-spacing:.14em;text-transform:uppercase;font-size:.82rem;padding:7px 12px}
+  .tcard td:first-child{font-weight:700;color:var(--rs-gold)}
+  .dif{font-weight:800;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+    border-radius:999px;padding:2px 9px;border:1px solid;white-space:nowrap}
+  .dif-easy{color:#9ed9a5;border-color:rgba(158,217,165,.5)}
+  .dif-med{color:var(--rs-gold);border-color:rgba(226,183,92,.5)}
+  .dif-hard{color:#f0a080;border-color:rgba(240,160,128,.5)}
+  @media print{.staff-bar{background:#eee;color:#000}}
+</style>
+</head>
+<body>
+
+<div class="staff-bar">Staff / Volunteer reference · Station 3 · Hackazon web app, not for attendee display</div>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Staff navigation">
+      <a href="/stations/hidden-chamber.html"><span class="rs-num">03</span>Chamber (attendee)</a>
+      <a href="/resources/red-sands/chamber-missions.html#hackazon">Attendee track</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">Station 03 · Volunteer Guide</p>
+  <h1>The Hackazon Web App</h1>
+  <p class="rs-lead">Hackazon is Rapid7’s deliberately vulnerable online shop. This is your map of what’s wrong with it and how to confirm a capture, so you can steer attendees, recognise a real finding, and keep them in scope.</p>
+</section>
+
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>What it is, and why it rewards manual work</h2>
+    <p>Hackazon is a full e-commerce app with several attack surfaces, the <strong>web UI</strong>, a <strong>REST API</strong>, <strong>SOAP/XML</strong> services, and <strong>AJAX</strong>. It was built partly to show that naive automated scanners miss things: it uses randomised paths, AJAX, and anti-automation tricks. So the lesson at this station is <strong>methodical manual testing with Burp</strong>, a scanner alone won’t do it justice.</p>
+    <div class="rs-callout rs-callout-warning">
+      <strong>Scope &amp; care.</strong> Attendees test <em>only</em> the lab Hackazon instance a volunteer points them to. Keep automated tools gentle on the shared app (few threads, modest <code>sqlmap --level/--risk</code>), no destructive data changes, and no touching anything else on the network. It resets with the lab if it gets wedged.
+    </div>
+  </div>
+
+  <div class="rs-card">
+    <h2>Vulnerability map</h2>
+    <p class="rs-muted">The classes Hackazon is known to carry, where they live, and how you confirm one. <span class="dif dif-easy">easy</span> = a good first win · <span class="dif dif-med">med</span> · <span class="dif dif-hard">hard</span> = chained or API-side. Exact params/paths vary by version, confirm on your instance.</p>
+    <div class="rs-table-wrap">
+      <table class="rs-table tcard">
+        <thead><tr><th>Class (OWASP)</th><th>Where to look</th><th>How you confirm it</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>SQL injection <span class="rs-muted" style="font-size:.8rem">· A03</span></td><td>Product / category <code>id</code> params, search, filter/sort params, REST API endpoints</td><td>A single quote errors or changes the page; <code>AND 1=1</code> vs <code>1=2</code> differ; <code>sqlmap</code> pulls the DBs</td><td><span class="dif dif-easy">easy</span></td></tr>
+          <tr><td>Reflected XSS <span class="rs-muted" style="font-size:.8rem">· A03</span></td><td>Search term echoed on the results page; some error messages</td><td>A proof payload (<code>&lt;script&gt;alert(1)&lt;/script&gt;</code> / <code>&lt;img onerror&gt;</code>) executes on the attendee’s own result page</td><td><span class="dif dif-easy">easy</span></td></tr>
+          <tr><td>Stored XSS <span class="rs-muted" style="font-size:.8rem">· A03</span></td><td>Product reviews/comments, profile fields</td><td>The payload is saved and fires for <em>anyone</em> who views that page afterward</td><td><span class="dif dif-med">med</span></td></tr>
+          <tr><td>IDOR / broken access control <span class="rs-muted" style="font-size:.8rem">· A01</span></td><td>Order, cart, wishlist, account pages that name an object by <code>id</code></td><td>Change the id to another user’s and you can read (or change) their record</td><td><span class="dif dif-easy">easy</span></td></tr>
+          <tr><td>CSRF <span class="rs-muted" style="font-size:.8rem">· A01</span></td><td>State-changing forms (profile update, add-to-cart) with no anti-CSRF token</td><td>The request carries no unpredictable token, so a crafted cross-site request performs the action</td><td><span class="dif dif-med">med</span></td></tr>
+          <tr><td>Parameter tampering / mass assignment <span class="rs-muted" style="font-size:.8rem">· A04</span></td><td>Cart/checkout quantities and prices; profile fields</td><td>Editing a value in Burp (price, quantity, an extra field) and the app honours it</td><td><span class="dif dif-med">med</span></td></tr>
+          <tr><td>XML / XXE injection <span class="rs-muted" style="font-size:.8rem">· A05</span></td><td>The SOAP / XML API endpoints</td><td>A crafted XML body with an external entity is parsed, or malformed XML changes behaviour</td><td><span class="dif dif-hard">hard</span></td></tr>
+          <tr><td>Open redirect <span class="rs-muted" style="font-size:.8rem">· A01</span></td><td>Redirect / return-URL parameters</td><td>A crafted value bounces the user off to an external site</td><td><span class="dif dif-med">med</span></td></tr>
+          <tr><td>Auth / session weaknesses <span class="rs-muted" style="font-size:.8rem">· A07</span></td><td>Login, registration, password reset, session cookies</td><td>Username enumeration on login/reset, weak password policy, or predictable/long-lived sessions</td><td><span class="dif dif-med">med</span></td></tr>
+          <tr><td>Information disclosure <span class="rs-muted" style="font-size:.8rem">· A05</span></td><td>Error pages, verbose responses, API surface, headers</td><td>Stack traces, internal paths, or an exposed API that leaks structure</td><td><span class="dif dif-easy">easy</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rs-card">
+    <h2>Running the station</h2>
+    <ul>
+      <li><strong>First win:</strong> point newcomers at a <span class="dif dif-easy">easy</span> class, reflected XSS in the search box, an IDOR id-swap, or SQLi on a product id. Quick, visible, and it builds confidence.</li>
+      <li><strong>Steer by interest:</strong> data-focused folks → SQLi (then <code>sqlmap</code> to dump a table); break-the-logic folks → IDOR / parameter tampering; API-curious → the REST/SOAP surface (XXE, auth).</li>
+      <li><strong>Verifying a finding:</strong> they should be able to <em>show the effect</em> and hand you the request/response, data returned, the alert firing, another user’s record, the honoured tampered value. “A scanner said so” isn’t a finding; the reproducible evidence is.</li>
+      <li><strong>Common stumbles:</strong> scanners come up empty (by design, push them to Burp and manual testing); <code>sqlmap</code> too aggressive on the shared app (dial <code>--level/--risk/--threads</code> down); XSS “doesn’t fire” (it was stored, view the page as another session).</li>
+      <li><strong>Documentation:</strong> every finding gets the four-part write-up (observation / evidence / impact / remediation) and an OWASP class, same standard as the host challenges. The <a href="/resources/red-sands/sample-report.html">sample report</a> shows the shape.</li>
+    </ul>
+    <div class="rs-callout rs-callout-gold">
+      <strong>To confirm on your instance:</strong> the exact vulnerable parameters and paths shift between Hackazon versions, walk the app once yourself before the event and note the specific inputs for the easy wins so you can nudge attendees precisely.
+    </div>
+    <p class="rs-muted" style="font-size:.86rem">Compiled for staff reference from the Hackazon project (<code>github.com/rapid7/hackazon</code>) and public web-app testing write-ups. Verify specifics against your deployed instance.</p>
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · The Hidden Chamber · Hackazon Volunteer Guide</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+</body>
+</html>

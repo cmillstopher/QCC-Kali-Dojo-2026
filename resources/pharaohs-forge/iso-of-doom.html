@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17130f">
+<meta name="description" content="A beginner-friendly explanation of the Kali 'ISO of Doom': what a custom Kali Linux image is, why you'd build one, and how live-build turns a recipe folder into a bootable ISO.">
+<title>The ISO of Doom, Explained · The Pharaoh's Forge | Red Sands Exploitation Arena</title>
+<link rel="stylesheet" href="/css/red-sands.css">
+<style>
+  /* diagram styling, built on the red-sands tokens */
+  .fig{margin:20px 0 6px}
+  .fig svg{width:100%;height:auto;display:block;border:1px solid var(--rs-line);
+    border-radius:var(--rs-radius-sm);background:#140f0b}
+  .fig figcaption{color:var(--rs-muted);font-size:.9rem;margin-top:10px;text-align:center}
+  .fig svg text{font-family:var(--rs-font-body)}
+  .d-box{fill:#221a12;stroke:#5a4228;stroke-width:1.5}
+  .d-box--gold{stroke:var(--rs-gold)}
+  .d-box--teal{stroke:var(--rs-teal)}
+  .d-box--red{stroke:var(--rs-red)}
+  .d-title{fill:var(--rs-gold);font-weight:800;font-size:17px}
+  .d-title--teal{fill:var(--rs-teal)}
+  .d-title--red{fill:var(--rs-red)}
+  .d-sub{fill:#d7c7aa;font-size:12.5px}
+  .d-mono{fill:var(--rs-teal);font-family:var(--rs-font-mono);font-size:12.5px}
+  .d-mono-gold{fill:var(--rs-gold);font-family:var(--rs-font-mono);font-size:13px;font-weight:700}
+  .d-cap{fill:#b9a888;font-size:12.5px}
+  .d-flow{stroke:var(--rs-teal);stroke-width:2.5;fill:none}
+  .d-dash{stroke:#6a5334;stroke-width:1.4;fill:none;stroke-dasharray:3 4}
+  .plain-list{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+  .plain-list li{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+  .plain-list code{white-space:nowrap}
+  .pl-tag{color:var(--rs-teal);font-weight:800;font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;
+    border:1px solid rgba(111,200,189,.4);border-radius:999px;padding:2px 10px;white-space:nowrap}
+  @media print{.fig svg{background:#140f0b}}
+</style>
+</head>
+<body>
+
+<a class="rs-skip" href="#main">Skip to content</a>
+<div class="rs-header" role="banner">
+  <div class="rs-wrap rs-header-inner">
+    <a class="rs-brand" href="/" aria-label="Red Sands Exploitation Arena, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="9" r="4.2" fill="#e2b75c"/>
+        <path d="M3 28 L16 12.5 L29 28 Z" fill="none" stroke="#e2b75c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16 12.5 L20.5 28" stroke="#6fc8bd" stroke-width="1.6"/>
+        <path d="M1.5 28.5 H30.5" stroke="#655033" stroke-width="1.6"/>
+      </svg>
+      <span class="rs-brand-full">Red Sands Exploitation Arena</span><span class="rs-brand-short">Red Sands</span>
+    </a>
+    <nav class="rs-nav" aria-label="Arena navigation">
+      <a href="/">Home</a>
+      <a href="/connect.html">Connect</a>
+      <a href="/stations/pharaohs-forge.html" aria-current="page"><span class="rs-num">01</span>The Forge</a>
+      <a href="/stations/scribes-arsenal.html"><span class="rs-num">02</span>The Arsenal</a>
+      <a href="/stations/hidden-chamber.html"><span class="rs-num">03</span>The Chamber</a>
+    </nav>
+  </div>
+  <div class="rs-frieze" aria-hidden="true"></div>
+</div>
+
+<main id="main" class="rs-main">
+<section class="rs-wrap rs-hero">
+  <p class="rs-eyebrow">Station 01 · Concept deep-dive</p>
+  <h1>The ISO of Doom, Explained</h1>
+  <p class="rs-lead">The headline activity of the Pharaoh's Forge is building an "ISO of Doom", a custom Kali Linux image that comes out of the oven already set up the way you want it. No experience needed: this page explains what it is, why it's worth building, and how it works, one picture at a time.</p>
+  <ol class="rs-path">
+    <li><a href="/stations/pharaohs-forge.html">The Forge</a></li>
+    <li aria-current="step">ISO of Doom · concept</li>
+    <li><a href="/resources/pharaohs-forge/boot-and-test.html">Boot &amp; test</a></li>
+  </ol>
+</section>
+
+<!-- WHAT IT IS -->
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>So what is it, in one sentence?</h2>
+    <p><strong>An ISO of Doom is a single Kali Linux disc image that you've pre-loaded with exactly the tools and settings you want</strong>, so every machine you boot from it starts up identical and ready to work, with no manual setup.</p>
+    <p>An <code>.iso</code> file is just a complete copy of a disc in one file. A normal Kali ISO gives you a plain, stock Kali. A <em>custom</em> ISO, the "ISO of Doom", is one you've baked your own choices into: your mission's tools are already installed, your settings are already applied, maybe even your wallpaper and scripts are already in place.</p>
+    <div class="rs-callout rs-callout-gold">
+      <strong>Where the name comes from.</strong> The term was coined by Offensive Security in a 2013 write-up, “Kali Linux ISO of Doom,” describing a custom Kali image that installs itself and quietly phones home for a remote assessment (more on that further down). The hands-on craft of <em>building</em> your own custom ISO was later popularized by the <em>Kali Linux Dojo</em>, the workshops the Kali team ran at Black Hat and DEF CON, where attendees rolled their own image instead of installing a stock one. This station continues that Dojo tradition.
+    </div>
+  </div>
+</section>
+
+<!-- WHY: comparison diagram -->
+<section class="rs-wrap rs-section">
+  <div class="rs-section-head">
+    <p class="rs-eyebrow">Why bother</p>
+    <h2>Build the recipe once, not every machine by hand</h2>
+    <p>Imagine setting up Kali for a room of ten people. You could install stock Kali on each one and add tools by hand, slow, and no two end up quite the same. Or you write the setup down once as a recipe, build it into an image, and boot that same image everywhere.</p>
+  </div>
+
+  <figure class="fig">
+    <svg viewBox="0 0 920 330" role="img" aria-labelledby="cmp-t cmp-d">
+      <title id="cmp-t">Comparison of setting up Kali by hand versus building one custom ISO</title>
+      <desc id="cmp-d">On the left, each machine is installed and configured by hand and may end up different. On the right, one recipe builds one image that boots identically on every machine.</desc>
+      <defs>
+        <marker id="ah-red" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto">
+          <path d="M0 0 L7 3 L0 6 Z" fill="#d0704f"/>
+        </marker>
+        <marker id="ah-teal" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto">
+          <path d="M0 0 L7 3 L0 6 Z" fill="#6fc8bd"/>
+        </marker>
+      </defs>
+
+      <!-- divider -->
+      <line x1="460" y1="20" x2="460" y2="310" class="d-dash"/>
+
+      <!-- LEFT: by hand -->
+      <text x="30" y="40" class="d-title d-title--red">BY HAND, ONE AT A TIME</text>
+      <rect x="30" y="58" width="150" height="54" rx="8" class="d-box"/>
+      <text x="105" y="82" text-anchor="middle" class="d-sub">Install stock Kali</text>
+      <text x="105" y="100" text-anchor="middle" class="d-cap">on machine #1</text>
+      <path d="M185 85 L215 85" class="d-flow" stroke="#d0704f" marker-end="url(#ah-red)"/>
+      <rect x="220" y="58" width="150" height="54" rx="8" class="d-box"/>
+      <text x="295" y="82" text-anchor="middle" class="d-sub">Add tools by hand</text>
+      <text x="295" y="100" text-anchor="middle" class="d-cap">tweak settings</text>
+
+      <!-- repeat loop -->
+      <path d="M295 112 C295 150, 105 150, 105 118" class="d-dash" marker-end="url(#ah-red)"/>
+      <text x="200" y="165" text-anchor="middle" class="d-cap">…then do it all again on #2, #3, #4 …</text>
+
+      <!-- three uneven results -->
+      <g>
+        <rect x="40"  y="200" width="80" height="70" rx="6" class="d-box d-box--red"/>
+        <rect x="52"  y="212" width="56" height="34" rx="3" fill="#2c2017"/>
+        <text x="80" y="262" text-anchor="middle" class="d-cap">#1</text>
+        <rect x="150" y="200" width="80" height="70" rx="6" class="d-box d-box--red"/>
+        <rect x="162" y="212" width="56" height="34" rx="3" fill="#2c2017"/>
+        <text x="190" y="262" text-anchor="middle" class="d-cap">#2</text>
+        <rect x="260" y="200" width="80" height="70" rx="6" class="d-box d-box--red"/>
+        <rect x="272" y="212" width="56" height="34" rx="3" fill="#2c2017"/>
+        <text x="300" y="262" text-anchor="middle" class="d-cap">#3</text>
+      </g>
+      <text x="200" y="298" text-anchor="middle" class="d-sub" fill="#e2967a">Slow · easy to get each one subtly different</text>
+
+      <!-- RIGHT: ISO of Doom -->
+      <text x="490" y="40" class="d-title">BUILD ONCE, BOOT ANYWHERE</text>
+      <rect x="490" y="58" width="120" height="54" rx="8" class="d-box d-box--gold"/>
+      <text x="550" y="82" text-anchor="middle" class="d-sub">One recipe</text>
+      <text x="550" y="100" text-anchor="middle" class="d-mono">kali-config/</text>
+      <path d="M612 85 L642 85" class="d-flow" marker-end="url(#ah-teal)"/>
+      <rect x="648" y="58" width="110" height="54" rx="8" class="d-box d-box--teal"/>
+      <text x="703" y="82" text-anchor="middle" class="d-sub">Build once</text>
+      <text x="703" y="100" text-anchor="middle" class="d-cap">live-build</text>
+      <path d="M760 85 L790 85" class="d-flow" marker-end="url(#ah-teal)"/>
+      <rect x="796" y="58" width="104" height="54" rx="8" class="d-box d-box--gold"/>
+      <text x="848" y="82" text-anchor="middle" class="d-mono-gold">kali.iso</text>
+      <text x="848" y="100" text-anchor="middle" class="d-cap">one image</text>
+
+      <!-- fan-out to identical machines -->
+      <path d="M848 112 C848 150, 560 150, 560 196" class="d-flow" marker-end="url(#ah-teal)"/>
+      <path d="M848 112 C848 155, 700 150, 700 196" class="d-flow" marker-end="url(#ah-teal)"/>
+      <path d="M848 112 C848 150, 840 150, 840 196" class="d-flow" marker-end="url(#ah-teal)"/>
+      <g>
+        <rect x="520" y="200" width="80" height="70" rx="6" class="d-box d-box--teal"/>
+        <rect x="532" y="212" width="56" height="34" rx="3" fill="#17241f"/>
+        <rect x="660" y="200" width="80" height="70" rx="6" class="d-box d-box--teal"/>
+        <rect x="672" y="212" width="56" height="34" rx="3" fill="#17241f"/>
+        <rect x="800" y="200" width="80" height="70" rx="6" class="d-box d-box--teal"/>
+        <rect x="812" y="212" width="56" height="34" rx="3" fill="#17241f"/>
+      </g>
+      <text x="700" y="298" text-anchor="middle" class="d-sub" fill="#9ed9a5">Fast · every machine identical and ready to work</text>
+    </svg>
+    <figcaption>The whole point: move the effort from "every machine, by hand" to "one recipe, built once."</figcaption>
+  </figure>
+
+  <div class="rs-grid-3">
+    <article class="rs-card">
+      <h3>Reproducible</h3>
+      <p>The same recipe always produces the same image. No "it worked on mine" surprises.</p>
+    </article>
+    <article class="rs-card">
+      <h3>Fast to deploy</h3>
+      <p>Set it up once. Boot it on ten machines in the time it would take to hand-configure one.</p>
+    </article>
+    <article class="rs-card">
+      <h3>Self-documenting</h3>
+      <p>The recipe <em>is</em> the documentation, anyone can read it and see exactly what's inside.</p>
+    </article>
+  </div>
+</section>
+
+<!-- HOW: pipeline diagram -->
+<section class="rs-wrap rs-section">
+  <div class="rs-section-head">
+    <p class="rs-eyebrow">How it works</p>
+    <h2>A recipe goes into the forge, a bootable image comes out</h2>
+    <p>You don't assemble an ISO by hand. You describe what you want in a folder of config files, and a tool called <code>live-build</code> does the assembly for you, Kali's official way to build custom images.</p>
+  </div>
+
+  <figure class="fig">
+    <svg viewBox="0 0 920 210" role="img" aria-labelledby="pipe-t pipe-d">
+      <title id="pipe-t">The live-build pipeline</title>
+      <desc id="pipe-d">A recipe folder feeds into live-build, which produces one bootable ISO, which you then boot in a VM or from a USB.</desc>
+      <defs>
+        <marker id="ah2" markerWidth="10" markerHeight="10" refX="6.5" refY="3" orient="auto">
+          <path d="M0 0 L7 3 L0 6 Z" fill="#6fc8bd"/>
+        </marker>
+      </defs>
+
+      <!-- Stage 1 -->
+      <rect x="18" y="55" width="188" height="100" rx="10" class="d-box d-box--gold"/>
+      <text x="112" y="88" text-anchor="middle" class="d-title">1 · THE RECIPE</text>
+      <text x="112" y="112" text-anchor="middle" class="d-mono">kali-config/</text>
+      <text x="112" y="134" text-anchor="middle" class="d-cap">your tools + settings</text>
+      <path d="M210 105 L250 105" class="d-flow" marker-end="url(#ah2)"/>
+
+      <!-- Stage 2 -->
+      <rect x="254" y="55" width="188" height="100" rx="10" class="d-box d-box--teal"/>
+      <text x="348" y="88" text-anchor="middle" class="d-title d-title--teal">2 · LIVE-BUILD</text>
+      <text x="348" y="112" text-anchor="middle" class="d-sub">the forge</text>
+      <text x="348" y="134" text-anchor="middle" class="d-cap">assembles everything</text>
+      <path d="M446 105 L486 105" class="d-flow" marker-end="url(#ah2)"/>
+
+      <!-- Stage 3 -->
+      <rect x="490" y="55" width="188" height="100" rx="10" class="d-box d-box--gold"/>
+      <text x="584" y="88" text-anchor="middle" class="d-mono-gold" font-size="16">kali-custom.iso</text>
+      <text x="584" y="112" text-anchor="middle" class="d-sub">3 · one image</text>
+      <text x="584" y="134" text-anchor="middle" class="d-cap">identical every time</text>
+      <path d="M682 105 L722 105" class="d-flow" marker-end="url(#ah2)"/>
+
+      <!-- Stage 4 -->
+      <rect x="726" y="55" width="176" height="100" rx="10" class="d-box d-box--teal"/>
+      <text x="814" y="88" text-anchor="middle" class="d-title d-title--teal">4 · BOOT IT</text>
+      <text x="814" y="112" text-anchor="middle" class="d-sub">VM or USB</text>
+      <text x="814" y="134" text-anchor="middle" class="d-cap">live or install</text>
+    </svg>
+    <figcaption>live-build is the official Kali/Debian tool that turns your config folder into a finished ISO.</figcaption>
+  </figure>
+</section>
+
+<!-- ANATOMY: the recipe tree -->
+<section class="rs-wrap rs-section">
+  <div class="rs-section-head">
+    <p class="rs-eyebrow">What's inside the recipe</p>
+    <h2>Four folders, four jobs</h2>
+    <p>The recipe is just a folder tree. You rarely touch most of it, but four spots control almost everything you'd want to change. Here's what each one does, in plain language.</p>
+  </div>
+
+  <figure class="fig">
+    <svg viewBox="0 0 920 360" role="img" aria-labelledby="tree-t tree-d">
+      <title id="tree-t">Anatomy of the live-build config folder</title>
+      <desc id="tree-d">Four locations in the kali-config folder and the job each one controls: package lists choose the tools, hooks run scripts during the build, includes.chroot bakes in files, and preseed answers the installer's questions.</desc>
+      <defs>
+        <marker id="ah3" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+          <path d="M0 0 L7 3 L0 6 Z" fill="#6a5334"/>
+        </marker>
+      </defs>
+
+      <!-- tree trunk -->
+      <text x="24" y="30" class="d-mono-gold" font-size="15">kali-config/</text>
+      <line x1="34" y1="42" x2="34" y2="320" class="d-dash"/>
+
+      <!-- row 1: package-lists -->
+      <line x1="34" y1="70" x2="300" y2="70" class="d-dash" marker-end="url(#ah3)"/>
+      <text x="44" y="66" class="d-mono">…/package-lists/*.list.chroot</text>
+      <rect x="470" y="40" width="430" height="56" rx="8" class="d-box d-box--teal"/>
+      <text x="486" y="63" class="d-title--teal d-title" font-size="14">WHICH TOOLS go in</text>
+      <text x="486" y="83" class="d-sub">One package name per line, e.g. <tspan class="d-mono">nmap</tspan>, <tspan class="d-mono">wireshark</tspan>.</text>
+      <line x1="300" y1="70" x2="470" y2="68" class="d-dash"/>
+
+      <!-- row 2: hooks -->
+      <line x1="34" y1="140" x2="300" y2="140" class="d-dash" marker-end="url(#ah3)"/>
+      <text x="44" y="136" class="d-mono">…/hooks/</text>
+      <rect x="470" y="110" width="430" height="56" rx="8" class="d-box d-box--teal"/>
+      <text x="486" y="133" class="d-title--teal d-title" font-size="14">SCRIPTS that run while building</text>
+      <text x="486" y="153" class="d-sub">Automate tweaks and cleanup as the image is assembled.</text>
+      <line x1="300" y1="140" x2="470" y2="138" class="d-dash"/>
+
+      <!-- row 3: includes.chroot -->
+      <line x1="34" y1="210" x2="300" y2="210" class="d-dash" marker-end="url(#ah3)"/>
+      <text x="44" y="206" class="d-mono">…/includes.chroot/</text>
+      <rect x="470" y="180" width="430" height="66" rx="8" class="d-box d-box--teal"/>
+      <text x="486" y="203" class="d-title--teal d-title" font-size="14">FILES baked into the image</text>
+      <text x="486" y="223" class="d-sub">Drop a file here and it appears on the ISO at the</text>
+      <text x="486" y="239" class="d-sub">same path, wallpaper, configs, your own scripts.</text>
+      <line x1="300" y1="210" x2="470" y2="212" class="d-dash"/>
+
+      <!-- row 4: preseed -->
+      <line x1="34" y1="290" x2="300" y2="290" class="d-dash" marker-end="url(#ah3)"/>
+      <text x="44" y="286" class="d-mono">…/preseed/*.cfg</text>
+      <rect x="470" y="262" width="430" height="66" rx="8" class="d-box d-box--teal"/>
+      <text x="486" y="285" class="d-title--teal d-title" font-size="14">ANSWERS to the installer's questions</text>
+      <text x="486" y="305" class="d-sub">Pre-answer the setup prompts so the install can run</text>
+      <text x="486" y="321" class="d-sub">start to finish without anyone clicking through it.</text>
+      <line x1="300" y1="290" x2="470" y2="294" class="d-dash"/>
+    </svg>
+    <figcaption>Change the tools, the scripts, the baked-in files, or the install answers, each lives in its own folder.</figcaption>
+  </figure>
+
+  <ul class="plain-list" aria-label="What each recipe folder controls, as text">
+    <li><span class="pl-tag">Tools</span><span><code>package-lists/*.list.chroot</code>, the list of software to install. One package name per line.</span></li>
+    <li><span class="pl-tag">Scripts</span><span><code>hooks/</code>, scripts that run <em>during</em> the build to automate tweaks and cleanup.</span></li>
+    <li><span class="pl-tag">Files</span><span><code>includes.chroot/</code>, any files you want baked in; they land on the ISO at the same path.</span></li>
+    <li><span class="pl-tag">Install answers</span><span><code>preseed/*.cfg</code>, pre-answers the installer's prompts for a hands-off (unattended) install.</span></li>
+  </ul>
+
+  <div class="rs-callout rs-callout-gold">
+    <strong>Where your customizations come from.</strong> The aliases, prompt, and setup script you create in <a href="/resources/pharaohs-forge/make-kali-yours.html">Make Kali Yours</a> and the <a href="/resources/pharaohs-forge/kali-builder.html">Kali Builder</a> are exactly what goes in <code>hooks/</code> (to run during the build) or <code>includes.chroot/</code> (to bake the files straight in). Personalize your environment first, then capture it here.
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>The build, start to finish</h2>
+    <p>This runs in a <strong>disposable Kali/Debian build VM</strong> (it needs root, plenty of disk, and time). You won't normally run a full build at the booth. It's slow, but here's the whole shape of it so the pieces above click into place:</p>
+    <pre><code># 1 · Get Kali's official recipe
+git clone https://gitlab.com/kalilinux/build-scripts/live-build-config.git
+cd live-build-config
+
+# 2 · Add your mission's tools to a package list
+echo "wireshark" &gt;&gt; kali-config/variant-default/package-lists/kali.list.chroot
+
+# 3 · (optional) Drop files to bake in, under
+#      kali-config/common/includes.chroot/...
+
+# 4 · Build it - this is the slow part
+sudo ./build.sh --verbose
+#   → produces images/kali-linux-*-live-amd64.iso</code></pre>
+    <p class="rs-muted">Steps 2 and 3 are the "recipe" from the diagrams; step 4 is the forge; the <code>.iso</code> it drops in <code>images/</code> is your ISO of Doom.</p>
+  </div>
+</section>
+
+<!-- LIVE vs INSTALLED -->
+<section class="rs-wrap rs-section">
+  <div class="rs-section-head">
+    <p class="rs-eyebrow">One image, two ways to run it</p>
+    <h2>What "Live" means</h2>
+    <p>A beginner's most common question: do my changes stick around? It depends on how you boot the same image.</p>
+  </div>
+  <div class="rs-grid">
+    <article class="rs-card">
+      <h3>Live boot</h3>
+      <p>Runs Kali straight off the disc or USB, in the computer's memory, <strong>without touching its hard drive</strong>. Great for a quick, leave-no-trace session. But anything you change vanishes on reboot, unless you deliberately set up <em>persistence</em>.</p>
+    </article>
+    <article class="rs-card">
+      <h3>Install</h3>
+      <p>The same ISO can <strong>install Kali permanently</strong> onto a drive, keeping your files and settings between reboots. This is where a <code>preseed</code> file shines: the install can run unattended, start to finish.</p>
+    </article>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section class="rs-wrap rs-section">
+  <div class="rs-section-head">
+    <p class="rs-eyebrow">Why it earned the name</p>
+    <h2>What people actually build them for</h2>
+    <p>The name traces back to that 2013 OffSec write-up, a real technique for <strong>remote vulnerability assessments</strong>, not a classroom exercise. Here’s the scenario it described, and the places the same build-once idea shows up across professional security work.</p>
+  </div>
+
+  <div class="rs-card">
+    <p class="rs-label">The original scenario</p>
+    <h3>A self-deploying box for a remote internal assessment</h3>
+    <p><strong>The problem.</strong> To assess a network from the inside, a tester normally has to travel to the client's site, or ship a machine and then try to reach it. Both are slow and awkward.</p>
+    <p><strong>The idea.</strong> Build a Kali image that <em>installs itself</em> with no questions asked (that's what the <code>preseed</code> file is for), comes preloaded with assessment tools, and on first boot reaches <em>outward</em> to the tester's server over an encrypted VPN tunnel. Firewalls usually permit outbound connections, so the box "phones home" from inside the network. The tester then rides that tunnel back in and works as if plugged into the internal LAN.</p>
+    <p><strong>The result.</strong> The person on-site only has to boot the media, a laptop, a tiny ARM device, whatever's handy. No travel, and the tester gets an authorized foothold on the internal network.</p>
+
+    <figure class="fig">
+      <svg viewBox="0 0 920 300" role="img" aria-labelledby="cb-t cb-d">
+        <title id="cb-t">The self-deploying remote-assessment callback</title>
+        <desc id="cb-d">A self-installed Kali box inside the client network makes an outbound encrypted VPN connection through the firewall to the tester's server; the tester then reaches back through the tunnel into the internal network.</desc>
+        <defs>
+          <marker id="cb-ah" markerWidth="10" markerHeight="10" refX="6.5" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#6fc8bd"/></marker>
+          <marker id="cb-ah-d" markerWidth="10" markerHeight="10" refX="6.5" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#c8a24c"/></marker>
+        </defs>
+
+        <!-- client panel -->
+        <rect x="14" y="36" width="430" height="246" rx="12" fill="none" stroke="#5a4228" stroke-width="1.5"/>
+        <text x="30" y="60" class="d-title" font-size="14">CLIENT SITE · internal network</text>
+        <rect x="36" y="150" width="74" height="64" rx="6" class="d-box"/>
+        <rect x="120" y="150" width="74" height="64" rx="6" class="d-box"/>
+        <text x="115" y="238" class="d-cap">internal hosts (in scope)</text>
+        <rect x="250" y="88" width="170" height="74" rx="9" class="d-box d-box--gold"/>
+        <text x="335" y="116" text-anchor="middle" class="d-title" font-size="14">Kali agent</text>
+        <text x="335" y="136" text-anchor="middle" class="d-cap">self-installs, then boots</text>
+        <text x="335" y="152" text-anchor="middle" class="d-cap">preloaded with tools</text>
+
+        <!-- firewall wall -->
+        <line x1="450" y1="48" x2="450" y2="270" class="d-dash" stroke="#8a6a3a"/>
+        <text x="450" y="292" text-anchor="middle" class="d-cap">firewall · allows outbound</text>
+
+        <!-- tester panel -->
+        <rect x="476" y="36" width="430" height="246" rx="12" fill="none" stroke="#3f5a54" stroke-width="1.5"/>
+        <text x="492" y="60" class="d-title d-title--teal" font-size="14">TESTER</text>
+        <rect x="506" y="88" width="166" height="74" rx="9" class="d-box d-box--teal"/>
+        <text x="589" y="116" text-anchor="middle" class="d-title d-title--teal" font-size="14">VPN server</text>
+        <text x="589" y="136" text-anchor="middle" class="d-cap">public IP</text>
+        <rect x="712" y="88" width="170" height="74" rx="9" class="d-box"/>
+        <text x="797" y="120" text-anchor="middle" class="d-sub">Tester</text>
+        <text x="797" y="140" text-anchor="middle" class="d-cap">connects over tunnel</text>
+
+        <!-- 1: outbound tunnel -->
+        <path d="M420 120 L506 120" class="d-flow" stroke-width="3" marker-end="url(#cb-ah)"/>
+        <text x="463" y="108" text-anchor="middle" class="d-sub" fill="#9ed9a5" font-size="12">① outbound</text>
+        <text x="463" y="162" text-anchor="middle" class="d-cap">encrypted tunnel</text>
+
+        <!-- 2: tester onto server -->
+        <path d="M712 125 L678 125" class="d-flow" marker-end="url(#cb-ah)"/>
+
+        <!-- 3: reach back in (dashed gold) -->
+        <path d="M560 170 C560 236, 180 232, 150 220" fill="none" stroke="#c8a24c" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#cb-ah-d)"/>
+        <text x="300" y="262" text-anchor="middle" class="d-sub" fill="#e2b75c" font-size="12">③ tester reaches the internal network through the tunnel</text>
+      </svg>
+      <figcaption>The box connects out; the tester rides the tunnel back in. Everything depends on the client's authorization.</figcaption>
+    </figure>
+
+    <div class="rs-callout rs-callout-warning">
+      <strong>This is a technique for authorized work only.</strong> A self-deploying box that calls home is a legitimate professional tool <em>when</em> there's explicit written permission and an agreed scope, and plain malware without it. The authorization is the entire difference. Nothing like this is run at the Arena; here you build a toolkit, not a callback.
+    </div>
+  </div>
+
+  <div class="rs-section-head" style="margin-top:8px">
+    <p class="rs-eyebrow">The same idea, other jobs</p>
+    <h2>More ways a custom image pays off</h2>
+    <p>Strip away the callback and the core win, "set it up once, boot it identically anywhere", is useful far beyond that one scenario.</p>
+  </div>
+  <div class="rs-grid-3">
+    <article class="rs-card">
+      <h3>Team toolkit image</h3>
+      <p>Every tester on a team boots the same versioned image, identical tools and configs, so findings are consistent and reproducible across the whole engagement.</p>
+    </article>
+    <article class="rs-card">
+      <h3>Drop-box for physical tests</h3>
+      <p>During an authorized red-team or physical engagement, the same callback image on a small ARM device gives an approved internal vantage point past the perimeter.</p>
+    </article>
+    <article class="rs-card">
+      <h3>Internal pivot</h3>
+      <p>After an authorized external foothold, the image can be deployed over PXE or a server's virtual media to turn an external test into an internal one.</p>
+    </article>
+    <article class="rs-card">
+      <h3>Offline / air-gapped kit</h3>
+      <p>Bake in every tool and any offline data so the image works with no internet at all, handy for isolated OT/ICS sites or secure facilities.</p>
+    </article>
+    <article class="rs-card">
+      <h3>Instant lab &amp; CTF reset</h3>
+      <p>Rebuild identical practice environments from one image instead of hand-configuring each, exactly how an event like this one stays consistent across machines.</p>
+    </article>
+    <article class="rs-card">
+      <h3>Incident-response go-kit</h3>
+      <p>A known-good, pre-configured image a responder can boot on scene, with the forensics and triage tooling already in place and verified.</p>
+    </article>
+  </div>
+</section>
+
+<!-- AT THE FORGE -->
+<section class="rs-wrap rs-section">
+  <div class="rs-card">
+    <h2>What you'll actually do at the Forge</h2>
+    <p>You don't need to build a full ISO today, a real build is slow. At the station you'll do the part that teaches the idea:</p>
+    <ol class="rs-steps">
+      <li>Pick a mission and find the tools it needs.</li>
+      <li>Open its package list and see how adding a line adds a tool to the recipe.</li>
+      <li>Watch the facilitator's build demo, or boot the known-good reference ISO.</li>
+      <li>Verify your tools are present, then carry your mission into the Scribe's Arsenal.</li>
+    </ol>
+    <div class="rs-callout rs-callout-warning">
+      <strong>Safety.</strong> Only scan and test explicitly authorized Red Sands lab targets, never hotel or conference Wi-Fi. Writing an ISO to a USB <em>erases that drive</em>; use a spare only, and never the 10 attendee loaner USBs.
+    </div>
+    <div class="rs-actions">
+      <a class="rs-button rs-button-primary" href="/resources/pharaohs-forge/attendee-guide.html">Attendee field guide →</a>
+      <a class="rs-button" href="/resources/pharaohs-forge/boot-and-test.html">Boot &amp; test guide →</a>
+      <a class="rs-button" href="/resources/red-sands/tooling-and-builds.html">Packages &amp; builds reference →</a>
+      <a class="rs-button" href="/resources/red-sands/anonymizing-kali.html">Anonymizing Kali (OPSEC) →</a>
+    </div>
+  </div>
+
+  <div class="rs-actions" style="justify-content:space-between">
+    <a class="rs-button" href="/stations/pharaohs-forge.html">← Back to the Pharaoh's Forge</a>
+    <a class="rs-button rs-button-primary" href="/stations/scribes-arsenal.html">Continue to the Arsenal →</a>
+  </div>
+</section>
+</main>
+
+<footer class="rs-footer">
+  <div class="rs-wrap rs-footer-row">
+    <span><strong>Red Sands Exploitation Arena</strong> · The Pharaoh's Forge · The ISO of Doom</span>
+    <span>Queen City Con · Cincinnati, Ohio · November 13–15, 2026</span>
+  </div>
+</footer>
+</body>
+</html>
